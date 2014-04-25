@@ -1,9 +1,8 @@
-<<<<<<< HEAD
-**/build/
-
+# Log Files
 bochsout.txt
-=======
+
 # Object files
+**/build/
 *.o
 *.ko
 *.obj
@@ -26,4 +25,3 @@ bochsout.txt
 *.i*86
 *.x86_64
 *.hex
->>>>>>> dd6fb18f5c4a605d3b0688c3dc47729ac5f08972
