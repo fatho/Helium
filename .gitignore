@@ -1,3 +1,29 @@
+<<<<<<< HEAD
 **/build/
 
 bochsout.txt
+=======
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+>>>>>>> dd6fb18f5c4a605d3b0688c3dc47729ac5f08972
