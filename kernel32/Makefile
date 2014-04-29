@@ -26,9 +26,9 @@ LD         := i686-elf-gcc
 
 LDFILE     := linker.ld
 
-CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR)
-ASFLAGS    := 
-LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc
+CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR) -m32
+ASFLAGS    := -32
+LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -m32
 
 all: build link
 

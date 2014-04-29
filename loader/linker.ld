@@ -31,12 +31,11 @@ SECTIONS
 		*(.data)
 	}
 
-	/* Read-write data (uninitialized) and stack */
+	/* Read-write data (uninitialized) */
 	.bss BLOCK(4K) : ALIGN(4K)
 	{
 		*(COMMON)
 		*(.bss)
-		*(.bootstrap_stack)
 	}
 
 	/* The compiler may produce other sections, by default it will put them in

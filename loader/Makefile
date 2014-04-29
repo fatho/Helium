@@ -1,11 +1,16 @@
 .PHONY: install all build link clean
 
-# makefile for loader
+################################################################################
+# MAKEFILE FOR HELIUM LOADER
+################################################################################
+
+# DEFINITIONS
+# ===========
 
 # output
 
 TARGET     := heliumldr
-TARGET_BIN := $(TARGET).bin
+TARGET_BIN := $(TARGET).sys
 
 # Directories
 SOURCE_DIR := ./src
@@ -19,42 +24,47 @@ OBJECTS    += $(patsubst $(SOURCE_DIR)/%.s,$(BUILD_DIR)/%.s.o,$(shell find $(SOU
 
 # Toolchain
 CC         := i686-elf-gcc
-AS         := i686-elf-as
+AS         := nasm
 LD         := i686-elf-gcc
 
 # Toolchain flags
 
 LDFILE     := linker.ld
 
-CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR)
-ASFLAGS    := 
-LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc
+CCFLAGS    := -m32 -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR)
+ASFLAGS    := -f elf32
+LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -m32
+
+
+# TARGETS
+# =======
 
 all: build link
 
 install: all
+	@ echo "Installing loader to $(PREFIX)"
 	@ mkdir -p $(PREFIX)/boot
-	@ mkdir -p $(PREFIX)/include
 	@ cp $(BUILD_DIR)/$(TARGET_BIN) $(PREFIX)/boot
 
 build: $(OBJECTS)
 
 link: $(BUILD_DIR)/$(TARGET_BIN)
 
+# final loader binary: build/heliumldr.sys
 $(BUILD_DIR)/$(TARGET_BIN): $(OBJECTS)
-	echo $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $^
 
-# build c file
+# build c files
 $(BUILD_DIR)/%.c.o: $(SOURCE_DIR)/%.c
 	@ mkdir -p $(BUILD_DIR)
 	$(CC) $(CCFLAGS) -c $< -o $@
 
-# build assembly file
+# build assembly files
 $(BUILD_DIR)/%.s.o: $(SOURCE_DIR)/%.s
 	@ mkdir -p $(BUILD_DIR)
 	$(AS) $(ASFLAGS) $< -o $@
 
+# clean intermediate files
 clean:
 	@ echo "Cleaning $(BUILD_DIR) ..."
 	@ rm -r -f $(BUILD_DIR)/*

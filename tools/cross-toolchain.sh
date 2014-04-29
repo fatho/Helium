@@ -46,7 +46,7 @@ if [ ! -f "$PREFIX/bin/$TARGET-as" ]; then
     mkdir -p build-binutils
     pushd build-binutils
     ../$BINUTILS_NAME/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --disable-werror
-    make
+    make -j4
     make install
     popd
 fi
@@ -58,8 +58,8 @@ if [ ! -f "$PREFIX/bin/$TARGET-gcc" ]; then
     mkdir -p build-gcc
     pushd build-gcc
     ../$GCC_NAME/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c,c++ --without-headers
-    make all-gcc
-    make all-target-libgcc
+    make -j4 all-gcc
+    make -j4 all-target-libgcc
     make install-gcc
     make install-target-libgcc
     popd

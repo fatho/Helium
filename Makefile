@@ -1,9 +1,7 @@
 .PHONY: all loader kernel32 clean install run
 
-PREFIX          := /mnt/helium
-EMU		:= bochs
-EMU_ARGS	:= -q
-
+CURDIR          := $(shell pwd)
+PREFIX          := $(CURDIR)/dist
 export PREFIX
 
 all: loader kernel32
@@ -13,7 +11,7 @@ install: all
 	@ $(MAKE) -C loader/ install
 	@ $(MAKE) -C kernel32/ install
 	@ mkdir -p $(PREFIX)/boot/grub
-	@ cp grub.cfg $(PREFIX)/boot/grub/grub.cfg
+	@ cp config/grub.cfg $(PREFIX)/boot/grub/grub.cfg
 	@ sync
 
 
