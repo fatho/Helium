@@ -1,10 +1,10 @@
 .PHONY: install all build link clean
 
-# makefile for kernel32
+# makefile for kernel64
 
 # output
 
-TARGET     := helium32
+TARGET     := helium64
 TARGET_BIN := $(TARGET).bin
 
 # Directories
@@ -18,17 +18,17 @@ OBJECTS    := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_DIR)/%.c.o,$(shell find $(SOU
 OBJECTS    += $(patsubst $(SOURCE_DIR)/%.s,$(BUILD_DIR)/%.s.o,$(shell find $(SOURCE_DIR) -name "*.s"))
 
 # Toolchain
-CC         := i686-elf-gcc
-AS         := i686-elf-as
-LD         := i686-elf-gcc
+CC         := x86_64-elf-gcc
+AS         := nasm
+LD         := x86_64-elf-gcc
 
 # Toolchain flags
 
 LDFILE     := linker.ld
 
-CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR) -m32
-ASFLAGS    := -32
-LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -m32
+CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR) -m64
+ASFLAGS    := -64
+LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -m64
 
 all: build link
 
