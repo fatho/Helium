@@ -56,6 +56,24 @@ boot_bsp:
     panic msg_nolongmode
 
 ;;; Description:
+;;;    Enables the newer APIC and disables the PIC
+enable_apic:
+    ;; check for APIC support
+    mov eax, 0x01       ; CPUID Processor Signature and Standard Features
+    cpuid
+    test edx, 1<<9      ; Bit 9 indicates APIC support
+    jz .no_apic
+    
+    ;; disable PIC
+    mov al, 0xff
+    out 0xa1, al        ; PIC2_DATA port
+    out 0x21, al        ; PIC1_DATA port
+
+    ret
+.no_apic
+    panic msg_noapic
+
+;;; Description:
 ;;;    Initializes 64 Bit page tables with identity mapping for the first 2 MiB.
 ;;;    PML4T[0] (Page Map Level 4 Table):      0x1000
 ;;;    PDPT[0] (Page Directory Pointer Table): 0x2000
@@ -106,6 +124,7 @@ setup_identity_paging:
     or    eax, 1 << 31          ; Set the PG-bit, which is the 32nd bit (bit 31).
     mov   cr0, eax
     
+    ret
     
 
 ;;; Description:
@@ -158,6 +177,7 @@ section .rodata
     msg_notimplemented db "*** NOT IMPLEMENTED ***",0
     msg_nocpuid db "*** CPUID not supported ***",0
     msg_nolongmode db "*** 64 Bit (LONG MODE) not supported ***",0
+    msg_noapic db "*** CPU HAS NO APIC ***",0
 
 section .data
 
