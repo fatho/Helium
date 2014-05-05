@@ -70,7 +70,7 @@ enable_apic:
     out 0x21, al        ; PIC1_DATA port
 
     ret
-.no_apic
+.no_apic:
     panic msg_noapic
 
 ;;; Description:

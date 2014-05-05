@@ -39,7 +39,7 @@ typedef struct {
     Elf64_Half e_shentsize; /* Size of section header entry */
     Elf64_Half e_shnum; /* Number of section header entries */
     Elf64_Half e_shstrndx; /* Section name string table index */
-} Elf64_Ehdr;
+}__attribute__((packed)) Elf64_Ehdr;
 
 /**
  * Indices in e_ident field
@@ -106,7 +106,7 @@ typedef struct {
     Elf64_Word sh_info; /* Miscellaneous information */
     Elf64_Xword sh_addralign; /* Address alignment boundary */
     Elf64_Xword sh_entsize; /* Size of entries, if section has table */
-} Elf64_Shdr;
+}__attribute__((packed)) Elf64_Shdr;
 
 /**
  * Section header types
@@ -150,7 +150,7 @@ typedef struct {
     Elf64_Half st_shndx; /* Section table index */
     Elf64_Addr st_value; /* Symbol value */
     Elf64_Xword st_size; /* Size of object (e.g., common) */
-} Elf64_Sym;
+}__attribute__((packed)) Elf64_Sym;
 
 /**
  * Symbol bindings (higher 4 bits of st_info)
@@ -183,13 +183,13 @@ typedef struct {
 typedef struct {
     Elf64_Addr r_offset; /* Address of reference */
     Elf64_Xword r_info; /* Symbol index and type of relocation */
-} Elf64_Rel;
+}__attribute__((packed)) Elf64_Rel;
 
 typedef struct {
     Elf64_Addr r_offset; /* Address of reference */
     Elf64_Xword r_info; /* Symbol index and type of relocation */
     Elf64_Sxword r_addend; /* Constant part of expression */
-} Elf64_Rela;
+}__attribute__((packed)) Elf64_Rela;
 
 #define ELF64_R_SYM(i)((i) >> 32)
 #define ELF64_R_TYPE(i)((i) & 0xffffffffL)
@@ -207,7 +207,7 @@ typedef struct {
     Elf64_Xword p_filesz; /* Size of segment in file */
     Elf64_Xword p_memsz; /* Size of segment in memory */
     Elf64_Xword p_align; /* Alignment of segment */
-} Elf64_Phdr;
+}__attribute__((packed)) Elf64_Phdr;
 
 /**
  * Program header types
@@ -239,7 +239,7 @@ typedef struct {
         Elf64_Xword d_val;
         Elf64_Addr d_ptr;
     } d_un;
-} Elf64_Dyn;
+}__attribute__((packed)) Elf64_Dyn;
 
 /**
  * Dynamic tags
