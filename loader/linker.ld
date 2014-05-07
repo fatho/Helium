@@ -1,48 +1,57 @@
-/* The bootloader will look at this image and start execution at the symbol
-   designated as the entry point. */
+OUTPUT_FORMAT(elf32-i386)
 ENTRY(boot_bsp)
 
-/* Tell where the various sections of the object files will be put in the final
-   kernel image. */
 SECTIONS
 {
-	/* Begin putting sections at 1 MiB, a conventional place for kernels to be
-	   loaded at by the bootloader. */
-	. = 1M;
+    . = 1M;
 
-	/* First put the multiboot header, as it is required to be put very early
-	   early in the image or the bootloader won't recognize the file format.
-	   Next we'll put the .text section. */
-	.text BLOCK(4K) : ALIGN(4K)
-	{
-		*(.multiboot)
-		*(.text)
-	}
+    /* First put the multiboot header, as it is required to be put very early
+       early in the image or the bootloader won't recognize the file format.
+       Next we'll put the .text section. */
+    .text ALIGN(4K) :
+    {
+        *(.multiboot)
+        *(.text)
+    }
 
-	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
-	{
-		*(.rodata)
-	}
+    /* Read-only data. */
+    .rodata ALIGN(4K) :
+    {
+        *(.rodata)
+    }
 
-	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
-	{
-		*(.data)
-	}
+    /* Read-write data (initialized) */
+    .data ALIGN(4K) :
+    {
+        *(.data)
+    }
 
-	/* Read-write data (uninitialized) */
-	.bss BLOCK(4K) : ALIGN(4K)
-	{
-		*(COMMON)
-		*(.bss)
-	}
+    /* Read-write data (uninitialized) */
+    .bss ALIGN(4K) :
+    {
+        *(COMMON)
+        *(.bss)
+    }
+    
+    .extra ALIGN(4K) : 
+    {
+       /* space for idt and gdt */
+       idt_data   = .; . += 4K;
+       gtd_data   = .; . += 4K;
+       /* space for identity mapping page tables */
+       page_pml4t = .; . += 4K;
+       page_pdpt  = .; . += 4K;
+       page_pdt   = .; . += 4K;
+       page_pt    = .; . += 4K;
+    }
 
     /DISCARD/ :
     {
         *(.comment)
         *(.eh_frame)
     }
-	/* The compiler may produce other sections, by default it will put them in
-	   a segment with the same name. Simply add stuff here as needed. */
+    
+    /* mark the first free page after the loader */
+    . = ALIGN(4K);
+    loader_top = . ;
 }

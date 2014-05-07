@@ -1,17 +1,19 @@
+OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(kernel_main)
 
 SECTIONS {
+    . = -2M;
 
-    .text 0xFFFFFF0000000000 : {
+    .text ALIGN(4K) : {
         *(.text)
         *(.rodata)
     }
 
-    .data : {
+    .data ALIGN(4K) : {
         *(.data)
     }
     
-    .bss : {
+    .bss ALIGN(4K) : {
         *(.bss)
     }
     

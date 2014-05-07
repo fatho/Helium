@@ -5,7 +5,7 @@
 # output
 
 TARGET     := helium64
-TARGET_BIN := $(TARGET).bin
+TARGET_BIN := $(TARGET).sys
 
 # Directories
 SOURCE_DIR := ./src
@@ -26,9 +26,9 @@ LD         := x86_64-elf-gcc
 
 LDFILE     := linker.ld
 
-CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR) -m64
-ASFLAGS    := -64
-LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -m64
+CCFLAGS    := -std=gnu99 -mcmodel=kernel -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR) -m64
+ASFLAGS    := -f elf64
+LDFLAGS    := -T $(LDFILE) -mcmodel=kernel -ffreestanding -O2 -nostdlib -lgcc -m64
 
 all: build link
 
