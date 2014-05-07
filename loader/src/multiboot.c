@@ -1,4 +1,4 @@
-#include <text.h>
+#include "screen.h"
 #include <multiboot.h>
 
 multiboot_t* multiboot_info;

@@ -1,4 +1,4 @@
-#include <text.h>
+#include "screen.h"
 #include <stdint.h>
 
 // facts about the VGA text mode memory
