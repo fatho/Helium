@@ -17,5 +17,4 @@ if [ ! -d "$MOUNTPOINT" ]; then
     exit -1
 fi
 
-sudo losetup /dev/loop1 "$IMGFILE" -o 1048576
-mount "$MOUNTPOINT"
+sudo mount -o rw,loop,offset=1048576 "$IMGFILE" "$MOUNTPOINT"

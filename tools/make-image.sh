@@ -61,5 +61,6 @@ echo "unmounting"
 sudo umount "$MOUNTPOINT"
 
 sudo losetup -d /dev/loop0
+sudo losetup -d /dev/loop1
 
 echo "success!"
