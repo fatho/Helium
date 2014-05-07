@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MULTIBOOT_H_
+#define MULTIBOOT_H_
 
 #include <stdint.h>
 
@@ -72,3 +73,5 @@ typedef struct {
     uint8_t boot_loader_name;
     mb_apm_t apm_table;
 } multiboot_t;
+
+#endif

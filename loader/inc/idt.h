@@ -5,7 +5,8 @@
  *      Author: fabian
  */
 
-#pragma once
+#ifndef IDT_H_
+#define IDT_H_
 
 #include <stdint.h>
 
@@ -21,3 +22,5 @@ typedef struct {
     uint32_t id_offset_high;
     uint32_t id_zero2;
 } idt64_t;
+
+#endif

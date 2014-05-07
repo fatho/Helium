@@ -4,7 +4,8 @@
  *  Created on: 05.05.2014
  *      Author: fabian
  */
-#pragma once
+#ifndef ELF64_H_
+#define ELF64_H_
 
 #include<stdint.h>
 
@@ -277,3 +278,5 @@ typedef struct {
 #define DT_HIOS 0x6FFFFFFF //
 #define DT_LOPROC 0x70000000 // Defines a range of dynamic table tags that are reserved for processor-specific use.
 #define DT_HIPROC 0x7FFFFFFF //
+
+#endif
