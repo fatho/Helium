@@ -2,8 +2,8 @@
 %define magicbreak xchg bx, bx
 %define halt jmp $
 %macro panic 1 
-   mov   esi,%1
-   call  loader32_panic
+   mov esi,%1
+   jmp loader32_panic
 %endmacro
 ;;; Code
 section .text
@@ -40,12 +40,7 @@ boot_bsp:
     jz    .no_longmode
 
     call  multiboot_init        ; init multiboot
-   
 
-    ;; TODO: halt for now
-    panic msg_notimplemented
-
-    cli   
     halt  
     
     ;; ERROR-Handlers
@@ -178,6 +173,7 @@ section .rodata
     msg_nocpuid db "*** CPUID not supported ***",0
     msg_nolongmode db "*** 64 Bit (LONG MODE) not supported ***",0
     msg_noapic db "*** CPU HAS NO APIC ***",0
+    
 
 section .data
 

@@ -17,7 +17,7 @@
 static int curline = 0;
 static int curcol = 0;
 
-void kernel_msg(char* message) {
+void kputs(char* message) {
     volatile uint16_t* dest = VGAPTR(curcol, curline);
     uint8_t color = TEXTCOLOR(BLACK, WHITE);
     // output until '\0' terminator
@@ -39,6 +39,20 @@ void kernel_msg(char* message) {
         }
         message++;
     }
+}
+
+void kputi(uint64_t number) {
+    char string[17];
+    for (int i = 0; i < 16; i++) {
+        uint8_t block = (number >> (4 * (15-i))) & 0xF;
+        if(block < 10) {
+            string[i] = '0' + block;
+        } else {
+            string[i] = 'A' + (block - 10);
+        }
+    }
+    string[16] = 0;
+    kputs(string);
 }
 
 void scroll_up() {

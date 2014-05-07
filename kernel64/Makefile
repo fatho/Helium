@@ -28,13 +28,13 @@ LDFILE     := linker.ld
 
 CCFLAGS    := -std=gnu99 -mcmodel=kernel -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR) -m64
 ASFLAGS    := -f elf64
-LDFLAGS    := -T $(LDFILE) -mcmodel=kernel -ffreestanding -O2 -nostdlib -lgcc -m64
+LDFLAGS    := -T $(LDFILE) -mcmodel=kernel -ffreestanding -O2 -nostdlib -lgcc -m64 -z max-page-size=0x1000
 
 all: build link
 
 install: all
+	@ echo "Installing kernel to $(PREFIX)"
 	@ mkdir -p $(PREFIX)/boot
-	@ mkdir -p $(PREFIX)/include
 	@ cp $(BUILD_DIR)/$(TARGET_BIN) $(PREFIX)/boot
 
 build: $(OBJECTS)
