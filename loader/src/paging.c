@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include "string.h"
 
-
 // memory for page tables is reserverd in linker script
 extern uint64_t page_pml4t[512];
 extern uint64_t page_pdpt[512];
@@ -13,6 +12,9 @@ extern uint64_t page_pt[512];
 
 #define PAGE_FLAG_PRESENT  (1<<0)
 #define PAGE_FLAG_WRITABLE (1<<1)
+
+#define PAGE_IS_PRESENT(p)  (p&PAGE_FLAG_PRESENT)
+#define PAGE_IS_WRITABLE(p) (p&PAGE_FLAG_WRITABLE)
 
 #define PAGE_LVL_PML4T 3
 #define PAGE_LVL_PDPT  2
@@ -48,8 +50,4 @@ void setup_paging() {
             "or 1<<5, %%eax\n"
             "movl %%eax, %%cr4" : : :
             );
-}
-
-uint64_t* get_page_entry(uint64_t virtual, uint8_t level) {
-
 }

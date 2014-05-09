@@ -10,8 +10,8 @@ section .text
 
 global boot_bsp
 extern multiboot_info
-extern multiboot_init
-extern kernel_msg
+extern ldr_main
+extern kputs
 
 ;;; Description: 
 ;;;   Initializes the BSP (bootstrap processor), switches to long mode and loads the kernel.
@@ -39,7 +39,7 @@ boot_bsp:
     test  edx, 1 << 29          ; edx bit 29: Long Mode
     jz    .no_longmode
 
-    call  multiboot_init        ; init multiboot
+    call  ldr_main              ; enter C code
 
     halt  
     
@@ -67,60 +67,6 @@ enable_apic:
     ret
 .no_apic:
     panic msg_noapic
-
-;;; Description:
-;;;    Initializes 64 Bit page tables with identity mapping for the first 2 MiB.
-;;;    PML4T[0] (Page Map Level 4 Table):      0x1000
-;;;    PDPT[0] (Page Directory Pointer Table): 0x2000
-;;;    PDT[0] (Page Directory Table):          0x3000
-;;;    PT[0] (Page Table):                     0x4000
-setup_identity_paging:
-    ;; clear tables (from 0x1000 to 0x4FFF)
-    mov   edi, 0x1000           ; Set the destination index to 0x1000.
-    mov   cr3, edi               ; Set control register 3 to the PML4T
-    xor   eax, eax               ; Nullify the A-register.
-    mov   ecx, 4096              ; 4096 double words = all 4 tables
-    rep   stosd                  ; Clear the memory.
-
-    mov   edi, cr3               ; retrieve PML4T address
-
-    ;; initializes first entries of the first three tables
-    ;; 0x3 = 0b11 means: Read/Write and Present
-    mov   DWORD [edi], 0x2003    ; PML4T[0] = 0x2003
-    add   edi, 0x1000
-    mov   DWORD [edi], 0x3003    ; PDPT[0]  = 0x3003
-    add   edi, 0x1000
-    mov   DWORD [edi], 0x4003    ; PDT[0]   = 0x4003
-    add   edi, 0x1000
-
-    ;; initialize identity mapping in first PT
-    mov   ebx, 0x00000003        ; Set the B-register to 0x00000003.
-    mov   ecx, 512               ; Set the C-register to 512.
-
-.SetEntry:
-    mov   DWORD [edi], ebx       ; Set the double word at the destination index to the B-register.
-    add   ebx, 0x1000            ; Add 0x1000 to the B-register.
-    add   edi, 8                 ; Add eight to the destination index.
-    loop  .SetEntry              ; Setd asd athe next entry.
-    
-    ;; enable PAE
-    mov   eax, cr4
-    or    eax, 1 << 5           ; Set the PAE-bit, which is the 6th bit (bit 5).
-    mov   cr4, eax
-
-    ;; set Long Mode bit
-    mov   ecx, 0xC0000080       ; Set the C-register to 0xC0000080, which is the EFER MSR.
-    rdmsr                       ; Read from the model-specific register.
-    or    eax, 1 << 8           ; Set the LM-bit which is the 9th bit (bit 8).
-    wrmsr                       ; Write to the model-specific register.
-
-    ;; enable paging
-    mov   eax, cr0
-    or    eax, 1 << 31          ; Set the PG-bit, which is the 32nd bit (bit 31).
-    mov   cr0, eax
-    
-    ret
-    
 
 ;;; Description:
 ;;;    Checks for presence of the CPUID instruction. Recommended by the AMD64
@@ -173,7 +119,6 @@ section .rodata
     msg_nocpuid db "*** CPUID not supported ***",0
     msg_nolongmode db "*** 64 Bit (LONG MODE) not supported ***",0
     msg_noapic db "*** CPU HAS NO APIC ***",0
-    
 
 section .data
 

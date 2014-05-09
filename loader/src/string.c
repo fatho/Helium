@@ -21,3 +21,9 @@ int strncmp(const char* s1, const char* s2, size_t n)
             return *(unsigned char*)(s1 - 1) - *(unsigned char*)(s2 - 1);
     return 0;
 }
+
+size_t strlen(const char* str) {
+    size_t len = 0;
+    while(!*str++) len ++;
+    return len;
+}

@@ -21,6 +21,6 @@ typedef struct {
     uint16_t id_offset_middle;
     uint32_t id_offset_high;
     uint32_t id_zero2;
-} idt64_t;
+} __attribute__((packed)) idt64_t;
 
 #endif

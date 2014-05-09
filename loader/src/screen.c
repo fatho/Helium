@@ -10,22 +10,31 @@
 
 // text colors
 #define TEXTCOLOR(BG,FG) ((BG << 4) | (FG & 0x0F))
-#define BLACK 0x0
-#define WHITE 0xF
+#define BLACK   0x0
+#define BLUE    0x1
+#define GREEN   0x2
+#define CYAN    0x3
+#define RED     0x4
+#define MAGENTA 0x5
+#define BROWN   0x6
+#define GRAY    0x7
+#define WHITE   0xF
 
 // current output position
-static int curline = 0;
-static int curcol = 0;
+int curline = 0;
+int curcol = 0;
+
+// current text color
+uint8_t screen_color = TEXTCOLOR(BLACK, WHITE);
 
 void kputs(char* message) {
     volatile uint16_t* dest = VGAPTR(curcol, curline);
-    uint8_t color = TEXTCOLOR(BLACK, WHITE);
     // output until '\0' terminator
     while (*message) {
         if (*message == '\n') {
             curcol = COLS;
         } else {
-            *dest = *message | (color << 8);
+            *dest = *message | (screen_color << 8);
             dest++;
             curcol++;
         }
@@ -34,6 +43,7 @@ void kputs(char* message) {
             curline += 1;
             if (curline == ROWS) {
                 scroll_up();
+                //curline = 0;
             }
             dest = VGAPTR(curcol, curline);
         }
@@ -55,20 +65,19 @@ void kputi(uint64_t number) {
     kputs(string);
 }
 
-void scroll_up() {
-    volatile uint16_t* src = VGAPTR(0, 0);
-    volatile uint16_t* dest = VGAPTR(0, 1);
-    volatile uint16_t* end = VGAPTR(0, ROWS);
-    // move lines one row upwards
-    while (dest != end) {
-        *dest = *src;
-        dest++;
-        src++;
+void clear_screen(uint8_t color) {
+    volatile uint16_t* dest = VGAPTR(0, 0);
+    screen_color = color;
+    curcol = 0;
+    curline = 0;
+    for(int i = 0; i < COLS*ROWS; i++) {
+        dest[i] = (color << 8) | ' ';
     }
-    // clear last row
-    while (src != dest) {
-        *src = 0;
-        src++;
+}
+
+void scroll_up() {
+    for(int i = 80*25-1; i>= 0; i--) {
+        ((uint16_t*)VGAMEM)[i] = ((uint16_t*)VGAMEM)[i - 80];
     }
     // adjust cursor position
     curline -= 1;

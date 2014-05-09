@@ -35,14 +35,24 @@ SECTIONS
     
     .extra ALIGN(4K) : 
     {
-       /* space for idt and gdt */
-       idt_data   = .; . += 4K;
-       gtd_data   = .; . += 4K;
-       /* space for identity mapping page tables */
-       page_pml4t = .; . += 4K;
-       page_pdpt  = .; . += 4K;
-       page_pdt   = .; . += 4K;
-       page_pt    = .; . += 4K;
+        /* start marker */
+        extra_start = .;
+        /* space for idt and gdt */
+        idt_data   = .; . += 4K;
+        gdt_data   = .; . += 4K;
+        /* info structures */
+        info_table   = .; . += 4K;
+        module_table = .; . += 4K;
+        mmap_table   = .; . += 4K;
+        string_table = .; . += 4K;
+        /* space for identity mapping page tables */
+        page_pml4t = .; . += 4K;
+        page_pdpt  = .; . += 4K;
+        page_pdt   = .; . += 4K;
+        page_pt    = .; . += 4K;
+        
+        /* end marker */
+        extra_end = 0;
     }
 
     /DISCARD/ :

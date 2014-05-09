@@ -15,5 +15,6 @@ void* memset(void* ptr, int value, size_t num);
 
 int strcmp(const char* str1, const char* str2);
 int strncmp(const char* s1, const char* s2, size_t n);
+size_t strlen(const char* str);
 
 #endif /* STRING_H_ */
