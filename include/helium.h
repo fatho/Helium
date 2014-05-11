@@ -15,6 +15,14 @@
 // size of string table in bytes
 #define HE_STRING_TABLE_SIZE 4096
 
+// Helium uses 4KB pages
+#define HE_PAGE_SIZE 0x1000
+
+typedef struct {
+
+}__attribute__((packed)) he_kernel_header_t;
+
+
 /**
  * Contains information about a module available at boot time.
  *
@@ -36,8 +44,7 @@ typedef struct {
 typedef struct {
     uint64_t base;      // physical address of the beginning of this memory region
     uint64_t length;    // length of this memory region in bytes
-    uint32_t available; // if this region is free to use or not
-    uint32_t padding;
+    uint64_t available; // 1 if this region is free, 0 otherwise
     uint64_t reserved;
 } __attribute__((packed)) he_mmap_t;
 

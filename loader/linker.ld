@@ -1,5 +1,5 @@
 OUTPUT_FORMAT(elf32-i386)
-ENTRY(boot_bsp)
+ENTRY(boot32_bsp)
 
 SECTIONS
 {
@@ -29,6 +29,9 @@ SECTIONS
     /* Read-write data (uninitialized) */
     .bss ALIGN(4K) :
     {
+        /* stack used in loader */
+        stack_bottom = .; . += 16K;
+        stack_top = .;
         *(COMMON)
         *(.bss)
     }
@@ -37,22 +40,22 @@ SECTIONS
     {
         /* start marker */
         extra_start = .;
-        /* space for idt and gdt */
-        idt_data   = .; . += 4K;
-        gdt_data   = .; . += 4K;
+        /* space for IDT and GDT */
+        idt_data     = .; . += 4K;
+        gdt_data     = .; . += 4K;  /* defined in boot32.s */
+        /* space for initial page tables */
+        page_pml4t = .; . += 4K;
+        page_pdpt  = .; . += 4K;
+        page_pdt   = .; . += 4K;
+        page_pt    = .; . += 4K;
         /* info structures */
         info_table   = .; . += 4K;
         module_table = .; . += 4K;
         mmap_table   = .; . += 4K;
         string_table = .; . += 4K;
-        /* space for identity mapping page tables */
-        page_pml4t = .; . += 4K;
-        page_pdpt  = .; . += 4K;
-        page_pdt   = .; . += 4K;
-        page_pt    = .; . += 4K;
         
         /* end marker */
-        extra_end = 0;
+        extra_end = .;
     }
 
     /DISCARD/ :
@@ -63,5 +66,5 @@ SECTIONS
     
     /* mark the first free page after the loader */
     . = ALIGN(4K);
-    loader_top = . ;
+    loader_end = . ;
 }

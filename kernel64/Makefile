@@ -26,7 +26,8 @@ LD         := x86_64-elf-gcc
 
 LDFILE     := linker.ld
 
-CCFLAGS    := -std=gnu99 -mcmodel=kernel -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR) -m64
+INC        := -I$(INC_DIR) -I../include
+CCFLAGS    := -std=gnu99 -mcmodel=kernel -ffreestanding -O2 -Wall -Wextra $(INC) -m64
 ASFLAGS    := -f elf64
 LDFLAGS    := -T $(LDFILE) -mcmodel=kernel -ffreestanding -O2 -nostdlib -lgcc -m64 -z max-page-size=0x1000
 
@@ -41,7 +42,7 @@ build: $(OBJECTS)
 
 link: $(BUILD_DIR)/$(TARGET_BIN)
 
-$(BUILD_DIR)/$(TARGET_BIN): $(OBJECTS)
+$(BUILD_DIR)/$(TARGET_BIN): $(OBJECTS) $(LDFILE)
 	echo $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $^
 

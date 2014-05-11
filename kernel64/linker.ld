@@ -2,7 +2,7 @@ OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(kernel_main)
 
 SECTIONS {
-    . = -2M;
+    . = -2048M;
 
     .text ALIGN(4K) : {
         *(.text)

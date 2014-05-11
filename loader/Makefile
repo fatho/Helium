@@ -23,17 +23,18 @@ OBJECTS    := $(patsubst $(SOURCE_DIR)/%.c,$(BUILD_DIR)/%.c.o,$(shell find $(SOU
 OBJECTS    += $(patsubst $(SOURCE_DIR)/%.s,$(BUILD_DIR)/%.s.o,$(shell find $(SOURCE_DIR) -name "*.s"))
 
 # Toolchain
-CC         := i686-elf-gcc
+CC         := x86_64-elf-gcc
 AS         := nasm
-LD         := i686-elf-gcc
+LD         := x86_64-elf-gcc
 
 # Toolchain flags
 
 LDFILE     := linker.ld
 
-CCFLAGS    := -m32 -std=gnu99 -ffreestanding -O2 -Wall -Wextra -I$(INC_DIR)
-ASFLAGS    := -f elf32
-LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -m32
+INC        := -I$(INC_DIR) -I../include
+CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(INC)
+ASFLAGS    := -f elf64
+LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -z max-page-size=0x1000
 
 
 # TARGETS
@@ -51,7 +52,7 @@ build: $(OBJECTS)
 link: $(BUILD_DIR)/$(TARGET_BIN)
 
 # final loader binary: build/heliumldr.sys
-$(BUILD_DIR)/$(TARGET_BIN): $(OBJECTS)
+$(BUILD_DIR)/$(TARGET_BIN): $(OBJECTS) $(LDFILE)
 	$(LD) $(LDFLAGS) -o $@ $^
 
 # build c files

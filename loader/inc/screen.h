@@ -2,6 +2,7 @@
 #define SCREEN_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 // text colors
 #define TEXTCOLOR(BG,FG) ((BG << 4) | (FG & 0x0F))
@@ -16,14 +17,23 @@
 #define WHITE   0xF
 
 // current output position
-extern int curline;
-extern int curcol;
+extern uint32_t curline;
+extern uint32_t curcol;
 
 // current text color
 extern uint8_t screen_color;
 
 // writes a message to the VGA memory
-void kputs(char*);
+void kputs(const char*);
+void kputsn(const char*, size_t);
+/**
+ * A really stripped down version of printf which only supports the format specifiers
+ *   "%%"   print single percent sign
+ *   "%s"   print string
+ *   "%x"   print 32 bit number as 64 bit hex string
+ *   "%llx" print 64 bit number as 64 bit hex string
+ */
+void kprintf(const char*, ...);
 // writes a number to the VGA memory
 void kputi(uint64_t number);
 // clears the screen with the specified color. sets the default color for subsequent kput* calls.

@@ -3,6 +3,8 @@
 CURDIR          := $(shell pwd)
 PREFIX          := $(CURDIR)/dist
 export PREFIX
+EMU				:= bochs
+EMU_ARGS  		:= -q
 
 all: loader kernel64
 
@@ -12,14 +14,13 @@ install: all
 	@ $(MAKE) -C kernel64/ install
 	@ mkdir -p $(PREFIX)/boot/grub
 	@ cp config/grub.cfg $(PREFIX)/boot/grub/grub.cfg
-	@ sync
-
+	@ ./publish.sh
 
 loader:
 	@ echo "Building loader"
 	@ $(MAKE) -C loader/
 
-kernel32:
+kernel64:
 	@ echo "Building kernel64"
 	@ $(MAKE) -C kernel64/
 
