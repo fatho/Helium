@@ -28,3 +28,12 @@ bochsout.txt
 
 # Distribution
 /dist/
+/doc/
+
+
+/emu/hd0.img
+
+# Eclipse project
+/.cproject
+/.project
+/.settings/

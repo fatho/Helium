@@ -1,44 +1,38 @@
-#include "screen.h"
-#include "string.h"
-#include "util.h"
+/**
+ * @file
+ *
+ * @author Fabian Thorand
+ * @date   May 13, 2014
+ *
+ * @brief This module contains a basic screen output system.
+ */
+
+#include "loader/screen.h"
+#include "loader/string.h"
+#include "loader/util.h"
 #include <stdarg.h>
 #include <stdint.h>
 
-// base address of VGA memory
-#define VGAMEM  0xB8000
-// number of text columns
-#define COLS    80
-// number of text rows
-#define ROWS    25
-// size of VGA buffer
-#define VGASIZE (COLS*ROWS*sizeof(uint16_t))
 
-// calculates character position inside VGA memory
-#define VGAPTR(x,y) ((volatile uint16_t*)VGAMEM + y * COLS + x)
-
-// text colors
-#define TEXTCOLOR(BG,FG) ((BG << 4) | (FG & 0x0F))
-#define BLACK   0x0
-#define BLUE    0x1
-#define GREEN   0x2
-#define CYAN    0x3
-#define RED     0x4
-#define MAGENTA 0x5
-#define BROWN   0x6
-#define GRAY    0x7
-#define WHITE   0xF
-
-// current output position
+/// current output cursor line
 uint32_t curline = 0;
+/// current output cursor column
 uint32_t curcol = 0;
 
-// current text color
-uint8_t screen_color = TEXTCOLOR(BLACK, WHITE);
+/// current text color
+uint8_t screen_color = SCREENCOLOR(BLACK, WHITE);
 
+
+/**
+ * @brief writes a null terminated string to the VGA buffer.
+ */
 void kputs(const char* message) {
     kputsn(message, strlen(message));
 }
 
+/**
+ * @brief writes a null terminated string to the VGA buffer, but at most \c size characters.
+ */
 void kputsn(const char* message, size_t length) {
     volatile uint16_t* dest = VGAPTR(curcol, curline);
     // output until '\0' terminator or length
@@ -63,6 +57,9 @@ void kputsn(const char* message, size_t length) {
     }
 }
 
+/**
+ * @brief writes a number to the VGA memory in 64 bit hexadecimal format.
+ */
 void kputi(uint64_t number) {
     char string[17];
     for (int i = 0; i < 16; i++) {
@@ -77,10 +74,28 @@ void kputi(uint64_t number) {
     kputs(string);
 }
 
+/**
+ * @brief A really simple implementation of printf.
+ *
+ * The following format specifiers are supported:
+ *   - "%%"   print single percent sign
+ *   - "%s"   print string
+ *   - "%x"   print 32 bit number as 64 bit hex string
+ *   - "%llx" print 64 bit number as 64 bit hex string
+ */
 void kprintf(const char* format, ...) {
     va_list vl;
     va_start(vl, format);
 
+    kvprintf(format, vl);
+
+    va_end(vl);
+}
+
+/**
+ * @brief same as \c kvprintf(const char*, ...), but with explicit variable argument list.
+ */
+void kvprintf(const char* format, va_list vl) {
     const char* src = format;
     const char* src2 = format;
 
@@ -127,10 +142,16 @@ void kprintf(const char* format, ...) {
 
         src = src2;
     }
-
-    va_end(vl);
 }
 
+
+/**
+ * Clears the screen with the specified foreground and background color.
+ * Sets \c color as the new default \c screen_color
+ *
+ * @param color a VGA color code where the higher four bits specify the background
+ * and the lower four bits specify foreground color.
+ */
 void clear_screen(uint8_t color) {
     volatile uint16_t* dest = VGAPTR(0, 0);
     screen_color = color;
@@ -141,6 +162,10 @@ void clear_screen(uint8_t color) {
     }
 }
 
+/**
+ * Scrolls the VGA buffer up by one line and clears the last line with the current \c screen_color.
+ * It also decreases the current cursor row by one.
+ */
 void scroll_up() {
     for (int i = COLS; i < COLS * ROWS; i++) {
         ((uint16_t*) VGAMEM)[i - COLS] = ((uint16_t*) VGAMEM)[i];

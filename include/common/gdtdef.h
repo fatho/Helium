@@ -19,6 +19,4 @@
 #define GDT_FLAGS_SIZE        (1<<2)
 #define GDT_FLAGS_LONGMODE    (1<<1)
 
-void set_gdt_entry(uint64_t* gdt_data, int index, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
-
 #endif /* GDT_H_ */

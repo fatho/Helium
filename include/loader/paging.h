@@ -10,7 +10,9 @@
 
 #define PAGE_SIZE 0x1000
 
+/// Returns the smallest page aligned integer value greater than or equal to \c x
 #define PAGE_CEIL(x) (((uintptr_t)x + PAGE_SIZE-1) & ~(PAGE_SIZE-1))
+/// Returns the greates page aligned integer value lesser than or equal to \c x
 #define PAGE_FLOOR(x) ((uintptr_t)x & ~(PAGE_SIZE-1))
 
 #define PAGE_FLAG_PRESENT  (1<<0)
@@ -23,7 +25,5 @@
 #define PAGE_LVL_PDPT  2
 #define PAGE_LVL_PDT   1
 #define PAGE_LVL_PT    0
-
-void setup_page_tables();
 
 #endif /* PAGING_H_ */

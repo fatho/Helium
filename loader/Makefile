@@ -33,7 +33,8 @@ LD         := x86_64-elf-gcc
 LDFILE     := linker.ld
 
 INC        := -I$(INC_DIR) -I../include
-CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(INC)
+DEFINES    := -DDEBUG -DASSERTIONS
+CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(INC) $(DEFINES)
 ASFLAGS    := -f elf64 -I$(MACRO_DIR)/
 LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -z max-page-size=0x1000
 

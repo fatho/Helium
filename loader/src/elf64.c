@@ -1,11 +1,13 @@
-/*
- * elf64.c
+/**
+ * @file
  *
- *  Created on: 05.05.2014
- *      Author: fabian
+ * @author Fabian Thorand
+ * @date   May 13, 2014
+ *
+ * @brief This module contains functions for dealing with ELF64 binaries.
  */
 
-#include <elf64.h>
+#include "loader/elf64.h"
 
 /**
  * calculates a has value for an ELF symbol name to be used with

@@ -24,8 +24,8 @@ typedef struct {
 }__attribute__((packed)) idt64_t;
 
 typedef struct {
-    uint16_t limit;  // maximum addressable byte in IDT
-    uint64_t offset; // linear base address of IDT
+    uint16_t limit;  ///< maximum addressable byte in IDT
+    uint64_t offset; ///< linear base address of IDT
 }__attribute__((packed)) idtr64_t;
 
 #endif

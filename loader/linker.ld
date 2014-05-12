@@ -48,10 +48,10 @@ SECTIONS
         *(.bss)
     }
     
-    .extra ALIGN(4K) : 
+    .info ALIGN(4K) : 
     {
         /* start marker */
-        extra_start = .;
+        info_start = .;
         /* space for IDT and GDT */
         idt_data     = .; . += 4K;
         gdt_data     = .; . += 4K;  /* defined in boot32.s */
@@ -62,12 +62,12 @@ SECTIONS
         page_pt    = .; . += 4K;
         /* info structures */
         info_table   = .; . += 4K;
-        module_table = .; . += 4K;
-        mmap_table   = .; . += 4K;
-        string_table = .; . += 4K;
+        info_modules = .; . += 4K;
+        info_mmap    = .; . += 4K;
+        info_strings = .; . += 4K;
         
         /* end marker */
-        extra_end = .;
+        info_end = .;
     }
 
     /DISCARD/ :

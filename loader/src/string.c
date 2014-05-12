@@ -1,4 +1,13 @@
-#include "string.h"
+/**
+ * @file
+ *
+ * @author Fabian Thorand
+ * @date   May 13, 2014
+ *
+ * @brief This module implements a few important string functions from the C standard.
+ */
+
+#include "loader/string.h"
 
 #include <stdint.h>
 

@@ -19,8 +19,8 @@ extern boot64_ap
 extern multiboot_info   ; defined in multiboot.c
 
 ;; symbols from linker.ld
-extern extra_start
-extern extra_end
+extern info_start
+extern info_end
 extern page_pml4t
 extern page_pdpt
 extern page_pdt
@@ -55,7 +55,7 @@ boot32_bsp:
     test  edx, 1 << 29          ; edx bit 29: Long Mode
     jz    .no_longmode
 
-    call boot32_clear_extra_section
+    call boot32_clear_info_section
     call boot32_identity_map
     call boot32_prepare
     
@@ -105,12 +105,12 @@ boot32_ap:
 
 ;;; Function:
 ;;;     Clears out the space between extra_start and extra_end (defined in linker.ld)
-boot32_clear_extra_section:
+boot32_clear_info_section:
     xor eax, eax
     ;; edi = start
-    mov edi, extra_start
+    mov edi, info_start
     ;; ecx = length divided by 4
-    mov ecx, extra_end
+    mov ecx, info_end
     sub ecx, edi
     shr ecx, 2
     ;; clear extra section
@@ -151,7 +151,11 @@ boot32_identity_map:
     ret
 
 ;;; Function:
-;;;     * enables A20 (if not enabled yet)    
+;;;     * enables PAE
+;;;     * sets CR3 to location of PML4T
+;;;     * loads GDT
+;;;     * enables long mode
+;;;     * enables paging
 boot32_prepare:
     ;; enable PAE
     mov   eax, cr4
