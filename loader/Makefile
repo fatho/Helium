@@ -15,6 +15,7 @@ TARGET_BIN := $(TARGET).sys
 # Directories
 SOURCE_DIR := ./src
 INC_DIR    := ./inc
+MACRO_DIR  := ./macros
 BUILD_DIR  := ./build
 
 # Files
@@ -33,7 +34,7 @@ LDFILE     := linker.ld
 
 INC        := -I$(INC_DIR) -I../include
 CCFLAGS    := -std=gnu99 -ffreestanding -O2 -Wall -Wextra $(INC)
-ASFLAGS    := -f elf64
+ASFLAGS    := -f elf64 -I$(MACRO_DIR)/
 LDFLAGS    := -T $(LDFILE) -ffreestanding -O2 -nostdlib -lgcc -z max-page-size=0x1000
 
 

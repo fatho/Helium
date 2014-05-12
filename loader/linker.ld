@@ -3,6 +3,18 @@ ENTRY(boot32_bsp)
 
 SECTIONS
 {
+    . = 1K;
+    
+    .text16 ALIGN(4K) :
+    {
+        *(.text16)
+    }
+    
+    .rodata16 ALIGN(4K) :
+    {
+        *(.rodata16)
+    }
+
     . = 1M;
 
     /* First put the multiboot header, as it is required to be put very early

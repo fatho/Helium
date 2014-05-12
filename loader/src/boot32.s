@@ -1,6 +1,5 @@
+%include "macros.inc"
 ;;; Macros
-%define magicbreak xchg bx, bx
-%define halt jmp $
 %macro panic 1 
    mov esi,%1
    jmp boot32_panic
@@ -9,11 +8,15 @@
 section .text
 bits 32
 
+;; export 32 bits entry points
 global boot32_bsp
+global boot32_ap
+
+;; import 64 bit entry points
+extern boot64_bsp
+extern boot64_ap
 
 extern multiboot_info   ; defined in multiboot.c
-
-extern boot64_bsp
 
 ;; symbols from linker.ld
 extern extra_start
@@ -53,7 +56,6 @@ boot32_bsp:
     jz    .no_longmode
 
     call boot32_clear_extra_section
-    ;call boot32_setup_gdt
     call boot32_identity_map
     call boot32_prepare
     
@@ -76,7 +78,30 @@ boot32_bsp:
 
 .no_longmode:
     panic msg_nolongmode
+
+
+;;; Function:
+;;;     32 bit entry point for application processors. 
+;;;     Called by boot16_ap in boot16.s.
+boot32_ap:
+    ;; Assume that this AP supports long mode when the BSP does
+
+    ;; this uses the same GDT and the same PML4T as the BSP
+    ;; the PML4T has to be changed after switch to long mode.
+    call boot32_prepare
     
+    ;; Setup data segment selectors
+    mov ax, gdt_data.kernel_data
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    
+    ;; far jump to 64 bit code
+    jmp gdt_data.kernel_code:boot64_ap
+    
+    halt
 
 ;;; Function:
 ;;;     Clears out the space between extra_start and extra_end (defined in linker.ld)
@@ -128,11 +153,6 @@ boot32_identity_map:
 ;;; Function:
 ;;;     * enables A20 (if not enabled yet)    
 boot32_prepare:
-    ;; Enable A20
-    in al, 0x92
-    or al, 2
-    out 0x92, al
-    
     ;; enable PAE
     mov   eax, cr4
     or    eax, 1 << 5           ; Set the PAE-bit, which is the 6th bit (bit 5).

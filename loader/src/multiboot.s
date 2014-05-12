@@ -9,7 +9,7 @@ MB_FLAG_MEMINFO EQU 0x0002      ; request memory information from bootloader
 MB_FLAGS        EQU (MB_FLAG_ALIGN | MB_FLAG_MEMINFO)
 MB_CHECKSUM     EQU -(MB_MAGIC + MB_FLAGS)
 
-Header:
+MultibootHeader:
    dd MB_MAGIC
    dd MB_FLAGS
    dd MB_CHECKSUM
