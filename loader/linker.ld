@@ -5,8 +5,12 @@ SECTIONS
 {
     . = 1K;
     
+    /* place multiboot header in 16 bit code section. the entry point called
+     * by GRUB is in .text.
+     */
     .text16 ALIGN(4K) :
     {
+        *(.multiboot)
         *(.text16)
     }
     
@@ -17,12 +21,8 @@ SECTIONS
 
     . = 1M;
 
-    /* First put the multiboot header, as it is required to be put very early
-       early in the image or the bootloader won't recognize the file format.
-       Next we'll put the .text section. */
     .text ALIGN(4K) :
     {
-        *(.multiboot)
         *(.text)
     }
 

@@ -8,6 +8,7 @@
  */
 
 #include "loader/string.h"
+#include "loader/util.h"
 
 #include <stdint.h>
 

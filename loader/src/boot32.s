@@ -85,6 +85,8 @@ boot32_bsp:
 ;;;     Called by boot16_ap in boot16.s.
 boot32_ap:
     ;; Assume that this AP supports long mode when the BSP does
+    
+    ;; TODO: Setup stack!!!
 
     ;; this uses the same GDT and the same PML4T as the BSP
     ;; the PML4T has to be changed after switch to long mode.

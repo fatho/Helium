@@ -50,10 +50,19 @@ extern uint8_t screen_color;
  * @brief writes a null terminated string to the VGA buffer.
  */
 void kputs(const char* msg);
+
 /**
  * @brief writes a null terminated string to the VGA buffer, but at most \c size characters.
  */
 void kputsn(const char* msg, size_t size);
+
+/**
+ * @brief Writes a character to the screen.
+ *
+ * @param chr the character
+ */
+void kputchar(int chr);
+
 /**
  * @brief A really simple implementation of printf.
  *
@@ -64,18 +73,22 @@ void kputsn(const char* msg, size_t size);
  *   - "%llx" print 64 bit number as 64 bit hex string
  */
 void kprintf(const char*, ...);
+
 /**
  * @brief same as \c kprintf(const char*, ...), but with explicit variable argument list.
  */
 void kvprintf(const char* format, va_list vl);
+
 /**
  * @brief writes a number to the VGA memory in 64 bit hexadecimal format.
  */
 void kputi(uint64_t number);
+
 /**
  * @brief clears the screen with the specified color. sets the default color for subsequent screen calls.
  */
 void clear_screen(uint8_t color);
+
 /**
  * @brief scrolls the VGA buffer one line up
  */

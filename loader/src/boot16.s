@@ -5,10 +5,10 @@ bits 16
 ;; import 32 bit entry point
 extern boot32_ap
 
-;;; Function:
-;;;     16 bit entry point for application processors. 
-;;;     The bootstrap processor entry point is implemented in boot32.s,
-;;;     as multiboot compliant bootloaders switch the BSP to 32 bit protected mode.
+;;; @brief 16 bit entry point for application processors. 
+;;;
+;;; @remark The bootstrap processor entry point is implemented in boot32.s,
+;;; as multiboot compliant bootloaders switch the BSP to 32 bit protected mode.
 ;;;     
 boot16_ap:
     cli          ; disable interrupts
@@ -34,9 +34,8 @@ boot16_fast_a20:
     ret
     
 bits 32
-;;; Function:
-;;;     Trampoline to 32 bit code, because 16 bit code cannot address the code above 0x100000 (1 MiB).
-;;;     Jumped to by boot16_ap, jumping to boot32_ap
+;;; @brief Trampoline to 32 bit code, because 16 bit code cannot address the code above 0x100000 (1 MiB).
+;;; @remark Jumped to by boot16_ap, jumping to boot32_ap
 boot32_ap_trampoline:
     jmp boot32_ap
     

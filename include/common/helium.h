@@ -52,14 +52,16 @@ typedef struct {
  * Contains all information the loader is passing to the kernel.
  */
 typedef struct {
-    uintptr_t idt_paddr;  ///< physical address of IDT
-    uintptr_t gdt_paddr;  ///< physical address of GDT
-    uintptr_t free_paddr; ///< physical address of first free page
-    uint16_t mod_count;  ///< number of modules in module table
-    uint16_t mod_table;  ///< offset to module table from the beginning of this structure
-    uint16_t mmap_count; ///< number of entries in memory-map-table
-    uint16_t mmap_table; ///< offset to memory-map-table
-    uint16_t cmdline;    ///< kernel command line (does not include the "kernel64" part)
+    uintptr_t idt_paddr;            ///< physical address of IDT
+    uintptr_t gdt_paddr;            ///< physical address of GDT
+    uintptr_t free_paddr;           ///< physical address of first free page
+    uint32_t  mod_count;            ///< number of modules in module table
+    uint32_t  mmap_count;           ///< number of entries in memory-map-t
+    uintptr_t mod_table;            ///< physical address of module tableable
+    uintptr_t mmap_table;           ///< physical address of memory-map-table
+    uint32_t  string_table_size;    ///< size of string table in bytes
+    uintptr_t string_table;         ///< physical address of string table
+    uint16_t  cmdline;              ///< kernel command line (does not include the "kernel64" part)
 }__attribute__((packed)) he_info_t;
 
 

@@ -13,7 +13,6 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-
 /// current output cursor line
 uint32_t curline = 0;
 /// current output cursor column
@@ -21,7 +20,6 @@ uint32_t curcol = 0;
 
 /// current text color
 uint8_t screen_color = SCREENCOLOR(BLACK, WHITE);
-
 
 /**
  * @brief writes a null terminated string to the VGA buffer.
@@ -34,26 +32,33 @@ void kputs(const char* message) {
  * @brief writes a null terminated string to the VGA buffer, but at most \c size characters.
  */
 void kputsn(const char* message, size_t length) {
-    volatile uint16_t* dest = VGAPTR(curcol, curline);
     // output until '\0' terminator or length
     while (*message && length--) {
-        if (*message == '\n') {
-            curcol = COLS;
-        } else {
-            *dest = *message | (screen_color << 8);
-            dest++;
-            curcol++;
+        kputchar(*message);
+        message += 1;
+    }
+}
+
+/**
+ * @brief Writes a character to the screen.
+ *
+ * @param chr the character
+ */
+void kputchar(int chr) {
+    volatile uint16_t* dest = VGAPTR(curcol, curline);
+
+    if (chr == '\n') {
+        curcol = COLS;
+    } else {
+        *dest = (uint8_t) chr | (screen_color << 8);
+        curcol++;
+    }
+    if (curcol == COLS) {
+        curcol = 0;
+        curline += 1;
+        if (curline == ROWS) {
+            scroll_up();
         }
-        if (curcol == COLS) {
-            curcol = 0;
-            curline += 1;
-            if (curline == ROWS) {
-                scroll_up();
-                //curline = 0;
-            }
-            dest = VGAPTR(curcol, curline);
-        }
-        message++;
     }
 }
 
@@ -61,17 +66,11 @@ void kputsn(const char* message, size_t length) {
  * @brief writes a number to the VGA memory in 64 bit hexadecimal format.
  */
 void kputi(uint64_t number) {
-    char string[17];
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i <= 15; i++) {
         uint8_t block = (number >> (4 * (15 - i))) & 0xF;
-        if (block < 10) {
-            string[i] = '0' + block;
-        } else {
-            string[i] = 'A' + (block - 10);
-        }
+        char chr = (block < 10) ? '0' + block : 'A' + (block - 10);
+        kputchar(chr);
     }
-    string[16] = 0;
-    kputs(string);
 }
 
 /**
@@ -96,54 +95,55 @@ void kprintf(const char* format, ...) {
  * @brief same as \c kvprintf(const char*, ...), but with explicit variable argument list.
  */
 void kvprintf(const char* format, va_list vl) {
-    const char* src = format;
-    const char* src2 = format;
-
-    // until 0 terminator
-    while (*src) {
-        // find percent sign
-        while (*src2 && *src2 != '%') {
-            src2++;
+    for (const char* str = format; *str; str++) {
+        if (*str != '%') {
+            kputchar(*str);
+            continue;
         }
-        if (*src2) {
-            // if *src2 is not 0, is must be the percent-sign
-            src2++;
-            if (*src2 == '%') {
-                // double-percent, output one
-                kputsn(src, src2 - src);
-                src2++;
-            } else if (strncmp(src2, "s", 1) == 0) {
-                // double-percent, output one
-                kputsn(src, src2 - src - 1);
-                src2++;
-                const char* arg = va_arg(vl, const char*);
-                kputs(arg);
-            } else if (strncmp(src2, "x", 1) == 0) {
-                // double-percent, output one
-                kputsn(src, src2 - src - 1);
-                src2++;
-                uint32_t arg = va_arg(vl, uint32_t);
-                kputi(arg);
-            } else if (strncmp(src2, "llx", 3) == 0) {
-                // double-percent, output one
-                kputsn(src, src2 - src - 1);
-                src2 += 3;
+        int longcnt = 0;
+
+        // parse format flags
+        parse_flag:
+        str++;
+        switch(*str) {
+        case 'l': longcnt += 1; goto parse_flag;
+        }
+
+        // parse data type
+        switch(*str) {
+        case 's': {
+            const char* arg = va_arg(vl, const char*);
+            kputs(arg);
+            break;
+        }
+        case 'c': {
+            char arg = va_arg(vl, int);
+            kputchar(arg);
+            break;
+        }
+        case 'x':
+        case 'X': {
+            char basechr = (*str == 'x') ? 'a' : 'A';
+            if(longcnt >= 2) {
                 uint64_t arg = va_arg(vl, uint64_t);
-                kputi(arg);
+                for (int i = 0; i < 16; i++) {
+                    uint8_t block = (arg >> (4 * (15 - i))) & 0xF;
+                    char chr = (block < 10) ? '0' + block : basechr + (block - 10);
+                    kputchar(chr);
+                }
             } else {
-                // undefined sequence, output all
-                kputsn(src, src2 - src + 1);
-                src2++;
+                uint32_t arg = va_arg(vl, uint32_t);
+                for (int i = 0; i < 8; i++) {
+                    uint8_t block = (arg >> (4 * (7 - i))) & 0xF;
+                    char chr = (block < 10) ? '0' + block : basechr + (block - 10);
+                    kputchar(chr);
+                }
             }
-        } else {
-            // *src2 is 0, print rest of string
-            kputsn(src, src2 - src);
+            break;
         }
-
-        src = src2;
+        }
     }
 }
-
 
 /**
  * Clears the screen with the specified foreground and background color.
@@ -170,7 +170,7 @@ void scroll_up() {
     for (int i = COLS; i < COLS * ROWS; i++) {
         ((uint16_t*) VGAMEM)[i - COLS] = ((uint16_t*) VGAMEM)[i];
     }
-    for(int i = COLS * (ROWS - 1); i < ROWS*COLS; i++) {
+    for (int i = COLS * (ROWS - 1); i < ROWS * COLS; i++) {
         ((uint16_t*) VGAMEM)[i] = (screen_color << 8) | ' ';
     }
     // adjust cursor position

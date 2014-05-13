@@ -8,7 +8,7 @@
  * with each allocation and does not handle freeing of memory blocks.
  */
 
-#include "loader/heap.h"
+#include "loader/pheap.h"
 #include "loader/kassert.h"
 #include "loader/paging.h"
 #include "loader/util.h"
@@ -19,7 +19,7 @@
 
 // the current top of the heap. not available directly to other modules, access only possible via
 // the functions defined in this module.
-static uintptr_t physical_heap_top = INVALID_PTR;
+static uintptr_t pheap_top = INVALID_PTR;
 
 /**
  * @brief Allocates as many consecutive physical pages as needed to hold at least \c size bytes.
@@ -29,21 +29,21 @@ static uintptr_t physical_heap_top = INVALID_PTR;
  * @remark Behavior for zero sized allocations is not specified.
  * @todo verify in MMAP that the allocation is possible
  */
-void* physical_page_alloc(size_t size) {
-    kassert(physical_heap_top != INVALID_PTR,
+void* pheap_page_alloc(size_t size) {
+    kassert(pheap_top != INVALID_PTR,
             "physical heap not initialized");
 
     size = PAGE_CEIL(size);
-    void* allocated = (void*) physical_heap_top;
-    physical_heap_top += size;
+    void* allocated = (void*) pheap_top;
+    pheap_top += size;
     return allocated;
 }
 
 /**
  * @brief Returns the current top of the heap.
  */
-uintptr_t get_physical_heap_top() {
-    return physical_heap_top;
+uintptr_t pheap_get_top() {
+    return pheap_top;
 }
 
 /**
@@ -55,9 +55,9 @@ uintptr_t get_physical_heap_top() {
  *
  * @remark Although it should not fail, it may raise a kernel panic on failure.
  */
-void physical_heap_init(uintptr_t free_paddr) {
+void pheap_init(uintptr_t free_paddr) {
     kassertf(free_paddr != INVALID_PTR && free_paddr != 0,
             "invalid pointer passed to page_alloc_init: %llx", free_paddr);
 
-    physical_heap_top = PAGE_CEIL(free_paddr);
+    pheap_top = PAGE_CEIL(free_paddr);
 }
