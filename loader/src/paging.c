@@ -7,6 +7,7 @@
  */
 
 #include "loader/paging.h"
+#include "loader/pheap.h"
 #include <stdint.h>
 #include <stddef.h>
 
@@ -15,7 +16,7 @@
  *
  * @return physical address of the PML4T
  */
-uint64_t* paging_get_pml4t() {
+uintptr_t paging_get_pml4t() {
     uintptr_t pml4t;
     asm volatile ("mov %%cr3, %0" : "=a" (pml4t));
     return pml4t;
@@ -26,7 +27,7 @@ uint64_t* paging_get_pml4t() {
  *
  * @param pml4t physical address of the PML4T
  */
-void paging_set_pml4t(uint64_t* pml4t) {
+void paging_set_pml4t(uintptr_t pml4t) {
     asm volatile ("mov %0, %%cr3" : : "a" (pml4t));
 }
 
@@ -37,7 +38,7 @@ void paging_set_pml4t(uint64_t* pml4t) {
  * @param level the level of the page table of interest
  * @param create if nonzero, the requested page table is created when it does not exist.
  */
-uint64_t* paging_get_table(uintptr_t vaddr, int level, int create) {
+uintptr_t paging_get_table(uintptr_t vaddr, int level, int create) {
     if(level == PAGE_LVL_PML4T)
         return paging_get_pml4t();
 
@@ -48,8 +49,12 @@ uint64_t* paging_get_table(uintptr_t vaddr, int level, int create) {
     uint64_t entry = parent[offset];
 
     if(PAGE_IS_PRESENT(entry)) {
-
+        return PAGE_ENTRY_ADDR_4K(entry);
     } else {
+        if(create) {
+            // allocate table
+        }
+
     }
 
 }

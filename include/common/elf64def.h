@@ -1,17 +1,15 @@
 /*
- * elf64.h
+ * @file
+ * @author Fabian Thorand
+ * @date May 5, 2014
  *
- *  Created on: 05.05.2014
- *      Author: fabian
+ * @brief ELF64 data structures according to the "ELF-64 Object File Format" specification version 1.5 draft 2 from May 27, 1998
  */
+
 #ifndef ELF64DEF_H_
 #define ELF64DEF_H_
 
 #include<stdint.h>
-
-/**
- * ELF data types
- */
 
 typedef uint64_t Elf64_Addr;
 typedef uint64_t Elf64_Off;
@@ -22,9 +20,8 @@ typedef uint64_t Elf64_Xword;
 typedef int64_t Elf64_Sxword;
 
 /**
- * ELF header
+ * ELF64 header
  */
-
 typedef struct {
     unsigned char e_ident[16]; ///< ELF identification
     Elf64_Half e_type; ///< Object file type
@@ -42,26 +39,22 @@ typedef struct {
     Elf64_Half e_shstrndx; ///< Section name string table index
 }__attribute__((packed)) Elf64_Ehdr;
 
-/**
- * Indices in e_ident field
- */
-#define EI_MAG0 0 ///< File identification
-#define EI_MAG1 1
-#define EI_MAG2 2
-#define EI_MAG3 3
+
+#define EI_MAG0 0 ///< index of first magic byte
+#define EI_MAG1 1 ///< index of second magic byte
+#define EI_MAG2 2 ///< index of third magic byte
+#define EI_MAG3 3 ///< index of fourth magic byte
 #define EI_CLASS 4 ///< File class
 #define EI_DATA 5 ///< Data encoding
 #define EI_VERSION 6 ///< File version
 #define EI_OSABI 7 ///< OS/ABI identification
 #define EI_ABIVERSION 8 ///< ABI version
 #define EI_PAD 9 ///< Start of padding bytes
-#define EI_NIDENT 16 ///< Size of e_ident[]
+#define EI_NIDENT 16 ///< Size of \c e_ident
 
-/**
- * Values in e_ident
- */
 
-#define ELF_MAGIC "\x7fELF"
+
+#define ELF_MAGIC "\x7fELF" ///< ELF header magic value
 
 #define ELFCLASS32 1 ///< 32-bit objects
 #define ELFCLASS64 2 ///< 64-bit objects
@@ -79,11 +72,11 @@ typedef struct {
 #define ET_DYN 3 ///< Shared object file
 #define ET_CORE 4 ///< Core file
 #define ET_LOOS 0xFE00 ///< Environment-specific use
-#define ET_HIOS 0xFEFF
+#define ET_HIOS 0xFEFF ///< Environment-specific use
 #define ET_LOPROC 0xFF00 ///< Processor-specific use
-#define ET_HIPROC 0xFFFF
+#define ET_HIPROC 0xFFFF ///< Processor-specific use
 
-/**
+/*
  * Special indices to section header table
  */
 
@@ -95,7 +88,6 @@ typedef struct {
 /**
  * Section header entry
  */
-
 typedef struct {
     Elf64_Word sh_name; ///< Section name
     Elf64_Word sh_type; ///< Section type
@@ -109,7 +101,7 @@ typedef struct {
     Elf64_Xword sh_entsize; ///< Size of entries, if section has table
 }__attribute__((packed)) Elf64_Shdr;
 
-/**
+/*
  * Section header types
  */
 
@@ -130,7 +122,7 @@ typedef struct {
 #define SHT_LOPROC 0x70000000 ///< Processor-specific use
 #define SHT_HIPROC 0x7FFFFFFF //
 
-/**
+/*
  * Section header flags
  */
 
@@ -143,7 +135,6 @@ typedef struct {
 /**
  * Symbol table entry
  */
-
 typedef struct {
     Elf64_Word st_name; ///< Symbol name
     unsigned char st_info; ///< Type and Binding attributes
@@ -153,7 +144,7 @@ typedef struct {
     Elf64_Xword st_size; ///< Size of object (e.g., common)
 }__attribute__((packed)) Elf64_Sym;
 
-/**
+/*
  * Symbol bindings (higher 4 bits of st_info)
  */
 #define STB_LOCAL 0 ///< Not visible outside the object file
@@ -164,7 +155,7 @@ typedef struct {
 #define STB_LOPROC 13 ///< Processor-specific use
 #define STB_HIPROC 15 //
 
-/**
+/*
  * Symbol types (lower 4 bits of st_info)
  */
 #define STT_NOTYPE 0 ///< No type specified (e.g., an absolute symbol)
@@ -177,10 +168,9 @@ typedef struct {
 #define STT_LOPROC 13 ///< Processor-specific use
 #define STT_HIPROC 15 //
 
-/**
+/*
  * Relocations
  */
-
 typedef struct {
     Elf64_Addr r_offset; ///< Address of reference
     Elf64_Xword r_info; ///< Symbol index and type of relocation
@@ -210,7 +200,7 @@ typedef struct {
     Elf64_Xword p_align; ///< Alignment of segment
 }__attribute__((packed)) Elf64_Phdr;
 
-/**
+/*
  * Program header types
  */
 #define PT_NULL 0 ///< Unused entry
@@ -242,7 +232,7 @@ typedef struct {
     } d_un;
 }__attribute__((packed)) Elf64_Dyn;
 
-/**
+/*
  * Dynamic tags
  */
 #define DT_NULL 0 ///< ignored Marks the end of the dynamic array

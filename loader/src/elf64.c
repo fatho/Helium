@@ -12,6 +12,9 @@
 /**
  * calculates a has value for an ELF symbol name to be used with
  * the ELF symbol hash table.
+ *
+ * @param name symbol name
+ * @return ELF hash code of symbol name
  */
 unsigned long elf64_hash(const unsigned char *name) {
     unsigned long h = 0, g;

@@ -21,14 +21,13 @@ extern multiboot_info   ; defined in multiboot.c
 ;; symbols from linker.ld
 extern info_start
 extern info_end
-extern page_pml4t
-extern page_pdpt
-extern page_pdt
-extern page_pt
+extern page_id_pml4t
+extern page_id_pdpt
+extern page_id_pdt
+extern page_id_pt
 extern stack_bottom
 extern stack_top
-
-global gdt_data
+extern gdt_data
 
 ;;; Function: 
 ;;;   Initializes the BSP (bootstrap processor), switches to long mode and loads the kernel.
@@ -56,11 +55,12 @@ boot32_bsp:
     jz    .no_longmode
 
     call boot32_clear_info_section
+    call boot32_copy_gdt
     call boot32_identity_map
     call boot32_prepare
     
     ;; Setup data segment selectors
-    mov ax, gdt_data.kernel_data
+    mov ax, boot32_gdt_data.kernel_data
     mov ds, ax
     mov es, ax
     mov fs, ax
@@ -68,7 +68,7 @@ boot32_bsp:
     mov ss, ax
     
     ;; far jump to 64 bit code
-    jmp gdt_data.kernel_code:boot64_bsp
+    jmp boot32_gdt_data.kernel_code:boot64_bsp
     
     halt  
     
@@ -93,7 +93,7 @@ boot32_ap:
     call boot32_prepare
     
     ;; Setup data segment selectors
-    mov ax, gdt_data.kernel_data
+    mov ax, boot32_gdt_data.kernel_data
     mov ds, ax
     mov es, ax
     mov fs, ax
@@ -101,7 +101,7 @@ boot32_ap:
     mov ss, ax
     
     ;; far jump to 64 bit code
-    jmp gdt_data.kernel_code:boot64_ap
+    jmp boot32_gdt_data.kernel_code:boot64_ap
     
     halt
 
@@ -120,29 +120,45 @@ boot32_clear_info_section:
     rep stosd
     ret
 
+;;; @brief copies the GDT from .rodata to \c gdt_data in \c .info
+;;;
+boot32_copy_gdt:
+    mov esi, boot32_gdt_data
+    mov edi, gdt_data
+    mov ecx, boot32_gdt_data.end - boot32_gdt_data
+    rep movsb
+
 
 ;;; Function:
-;;;     Initializes 64 Bit page tables with identity mapping for the first 2 MiB.
+;;;     Initializes 64 Bit page tables with identity mapping for the first 32 MiB minus 4 KiB.
+;;;     The virtual address 0x1FFF000 is used as scratch space for temporary mappings.
 ;;;     Uses the space reserved in linker.ld for the page tables.
 boot32_identity_map:
     ;; initializes first entries of the first three tables
     ;; set flags to 0x3 = 0b11 means: Read/Write and Present
-    mov   eax, page_pdpt
+    mov   eax, page_id_pdpt
     or    eax, 0b11
-    mov   DWORD [page_pml4t], eax
+    mov   DWORD [page_id_pml4t], eax
     
-    mov   eax, page_pdt
+    mov   eax, page_id_pdt
     or    eax, 0b11
-    mov   DWORD [page_pdpt], eax
+    mov   DWORD [page_id_pdpt], eax
     
-    mov   eax, page_pt
-    or    eax, 0b11
-    mov   DWORD [page_pdt], eax
+    ;; init first 16 entries in PDT
+    mov   eax, page_id_pt       ; first PT
+    or    eax, 0b11             ; RW and PRESENT
+    mov   edi, page_id_pdt      ; start of PDT
+    mov   ecx, 16               ; 16 entries
+.set_pdt_entry:
+    mov   DWORD [edi], eax      ; store entry
+    add   eax, 0x1000           ; advance to next PT           
+    add   edi,8                 ; advance to next entry
+    loop .set_pdt_entry
 
     ;; initialize identity mapping in first PT
-    mov   edi, page_pt
+    mov   edi, page_id_pt
     mov   ebx, 0x00000003        ; ebx <- physical page 0 and RW and PRESENT flags
-    mov   ecx, 512               ; ecx <- 512 entries
+    mov   ecx, 16 * 512 - 1      ; ecx <- 16 page tables with 512 entries each minus one for scratch space
 
 .set_pt_entry:
     mov   DWORD [edi], ebx       ; set PT entry at EDI
@@ -171,7 +187,7 @@ boot32_prepare:
     wrmsr                       ; Write to the model-specific register.
 
     ;; tell CPU the location of the PML4T
-    mov   eax, page_pml4t
+    mov   eax, page_id_pml4t
     mov   cr3, eax
     
     ;; load 64 Bit GDT
@@ -236,31 +252,32 @@ msg_notimplemented: db "*** NOT IMPLEMENTED ***",0
 msg_nocpuid:        db "*** CPUID not supported ***",0
 msg_nolongmode:     db "*** 64 Bit (LONG MODE) not supported ***",0
 
-gdt_data:
+
+boot32_gdt_data:
     .null_entry:    
         dq 0x0 
-    .kernel_code:   equ $ - gdt_data
+    .kernel_code:   equ $ - boot32_gdt_data
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
         db 0b10011000   ; access (Present, Ring0, Segment, Execute) 
         db 0b00100000   ; flags (long mode) and limit (16..19)
         db 0x00         ; base (24..31)
-    .kernel_data:   equ $ - gdt_data
+    .kernel_data:   equ $ - boot32_gdt_data
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
         db 0b10010010   ; access (Present, Ring0, Segment, Write) 
         db 0b00000000   ; no flags and limit (16..19)
         db 0x00         ; base (24..31)
-    .user_code:   equ $ - gdt_data
+    .user_code:   equ $ - boot32_gdt_data
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
         db 0b11111000   ; access (Present, Ring3, Segment, Execute) 
         db 0b00100000   ; flags (long mode) and limit (16..19)
         db 0x00         ; base (24..31)
-    .user_data:   equ $ - gdt_data
+    .user_data:   equ $ - boot32_gdt_data
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
@@ -269,7 +286,9 @@ gdt_data:
         db 0x00         ; base (24..31)
     .end:
     
+        
 boot32_gdt_pointer:
-    dw gdt_data.end - gdt_data - 1 ; limit
+    dw boot32_gdt_data.end - boot32_gdt_data - 1 ; limit
     dq gdt_data         ; base
 
+    

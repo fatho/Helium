@@ -20,7 +20,7 @@ OBJECTS    += $(patsubst $(SOURCE_DIR)/%.s,$(BUILD_DIR)/%.s.o,$(shell find $(SOU
 # Toolchain
 CC         := x86_64-elf-gcc
 AS         := nasm
-LD         := x86_64-elf-gcc
+LD         := x86_64-elf-ld
 
 # Toolchain flags
 
@@ -29,7 +29,7 @@ LDFILE     := linker.ld
 INC        := -I$(INC_DIR) -I../include
 CCFLAGS    := -std=gnu99 -mcmodel=kernel -ffreestanding -O2 -Wall -Wextra $(INC) -m64
 ASFLAGS    := -f elf64
-LDFLAGS    := -T $(LDFILE) -mcmodel=kernel -ffreestanding -O2 -nostdlib -lgcc -m64 -z max-page-size=0x1000
+LDFLAGS    := -T $(LDFILE) -z max-page-size=0x1000 -Map $(BUILD_DIR)/$(TARGET).map
 
 all: build link
 
@@ -42,7 +42,7 @@ build: $(OBJECTS)
 
 link: $(BUILD_DIR)/$(TARGET_BIN)
 
-$(BUILD_DIR)/$(TARGET_BIN): $(OBJECTS) $(LDFILE)
+$(BUILD_DIR)/$(TARGET_BIN): $(OBJECTS)
 	echo $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $^
 

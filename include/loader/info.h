@@ -8,18 +8,26 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#define INFO_SECTION
+//__attribute__((section(".info")))
+
 /// pre-allocated IDT table
-extern idt64_t idt_data[HE_IDT_MAX_ENTRIES];
+extern idt64_t idt_data[HE_IDT_MAX_ENTRIES] INFO_SECTION;
 /// pre-allocated GDT for long mode
-extern uint64_t gdt_data[HE_GDT_MAX_ENTRIES];
+extern uint64_t gdt_data[HE_GDT_MAX_ENTRIES] INFO_SECTION;
 
-extern he_info_t info_table;
-extern he_module_t info_modules[256];
-extern he_mmap_t info_mmap[256];
-extern char info_strings[HE_STRING_TABLE_SIZE];
+extern he_info_t info_table INFO_SECTION;
+extern he_module_t info_modules[256] INFO_SECTION;
+extern he_mmap_t info_mmap[256] INFO_SECTION;
+extern char info_strings[HE_STRING_TABLE_SIZE] INFO_SECTION;
 
-/// Address of loader_end marks the end of the loader binary.
-extern uint8_t loader_end;
+/// marker for beginning of info section
+extern uint8_t info_start[0] INFO_SECTION;
+/// marker for end of info section
+extern uint8_t info_end[0] INFO_SECTION;
+
+/// marker for end of loader binary
+extern uint8_t loader_end[0] INFO_SECTION;
 
 
 /**

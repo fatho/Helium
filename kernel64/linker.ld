@@ -16,7 +16,7 @@ SECTIONS {
     .bss ALIGN(4K) : {
         *(.bss)
     }
-    
+        
     /DISCARD/ :
     {
         *(.comment)

@@ -40,9 +40,9 @@ void info_parse_modules(multiboot_mod_t* modules, uint32_t modcount) {
         info_modules[i].paddr = modules[i].addr_start;
         info_modules[i].length = modules[i].addr_end;
 
-        size_t namelen = strlen((char*)(uintptr_t)modules[i].name);
+        size_t namelen = strlen((char*) (uintptr_t) modules[i].name);
         char* str_tab_entry = info_string_alloc(namelen);
-        memcpy(str_tab_entry, (char*)(uintptr_t)modules[i].name, namelen);
+        memcpy(str_tab_entry, (char*) (uintptr_t) modules[i].name, namelen);
 
         info_modules[i].cmdline = (str_tab_entry - info_strings);
     }
@@ -77,7 +77,7 @@ void info_parse_modules(multiboot_mod_t* modules, uint32_t modcount) {
 void info_parse_mmap(uintptr_t mmap_start, uint32_t mmap_size) {
     int eidx = 0;
 
-    multiboot_mmap_t* entry = (multiboot_mmap_t*)mmap_start;
+    multiboot_mmap_t* entry = (multiboot_mmap_t*) mmap_start;
     while ((uintptr_t) entry < mmap_start + mmap_size) {
         // align memory map to page boundaries
         uint64_t aligned_base = PAGE_FLOOR(entry->base);
@@ -114,7 +114,7 @@ char* info_string_alloc(size_t length) {
     if (length > remaining_size) {
         kpanicf("Not enough space in string_table.\n"
                 "Requested: %llx\n"
-                "Available: %llx", (uint64_t)length, (uint64_t)remaining_size);
+                "Available: %llx", (uint64_t) length, (uint64_t) remaining_size);
     }
 
     char* allocated = info_strings + offset;
@@ -167,10 +167,16 @@ void info_init() {
     info_table.gdt_paddr = (uintptr_t) gdt_data;
     info_table.mod_table = (uintptr_t) info_modules;
     info_table.mmap_table = (uintptr_t) info_mmap;
-    // align to next page
-    info_table.free_paddr = ((uintptr_t) &loader_end + 0xFFF) & ~0xFFF;
 
     info_parse_mmap(multiboot_info->mmap, multiboot_info->mmap_len);
 
-    info_parse_modules((multiboot_mod_t*)(uintptr_t)multiboot_info->mods, multiboot_info->mods_count);
+    info_parse_modules((multiboot_mod_t*) (uintptr_t) multiboot_info->mods,
+            multiboot_info->mods_count);
+
+    uintptr_t free_paddr = (uintptr_t) &loader_end;
+    for(int i = 0; i < multiboot_info->mods_count; i++) {
+
+    }
+    // align to next page
+    info_table.free_paddr = ((uintptr_t) &loader_end + 0xFFF) & ~0xFFF;
 }

@@ -1,0 +1,22 @@
+/**
+\mainpage The mainpage documentation
+\author Fabian Thorand
+\date May 13, 2014
+
+\brief Helium is a loader for kernels based on the AMD64 architecture.
+
+\section memlayout Memory Layout
+
+- 0x0000 0000 - 0x0000 1000 ...
+- 0x0000 1000 - 0x0000 2000 .text16 (16 bit code for booting APs, reclaimable)
+- 0x0000 2000 - 0x0000 3000 .rodata16 (bootstrap data for APs, reclaimable)
+- 0x0000 3000 - 0x0010 0000 ...
+- 0x0010 0000 - 0x0010 1000 .text (32 and 64 bit loader code, reclaimable)
+- 0x0010 1000 - 0x0010 2000 .rodata (reclaimable)
+- 0x0010 2000 - 0x0010 3000 .data (reclaimable)
+- 0x0010 3000 - 0x0010 c000 .bss (contains loader stack, reclaimable)
+
+- 0x0010 c000 - 0x0010 d000 initial IDT
+- 0x0010 d000 - 0x0010 e000 initial IDT
+- 0x01FF F000 - 0x0200 0000
+*/

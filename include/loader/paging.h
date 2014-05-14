@@ -17,13 +17,19 @@
 /// Returns the greates page aligned integer value lesser than or equal to \c x
 #define PAGE_FLOOR(x) ((uintptr_t)x & ~(PAGE_SIZE-1))
 
+/// PRESENT bit in page table entry
 #define PAGE_FLAG_PRESENT  (1<<0)
+/// WRITABLE bit in page table entry
 #define PAGE_FLAG_WRITABLE (1<<1)
 
+/// checks if the given page table entry is present
 #define PAGE_IS_PRESENT(p)  (p&PAGE_FLAG_PRESENT)
+/// checks if the given page table entry is writable
 #define PAGE_IS_WRITABLE(p) (p&PAGE_FLAG_WRITABLE)
-#define PAGE_ENTRY_ADDR(p)  ((p>>12)&((1<<40)-1))
+/// returns the physical address referenced in the given page table entry.
+#define PAGE_ENTRY_ADDR_4K(p)  (((p>>12)&((1L<<40)-1)) << 12)
 
+/// calculates the page table index for the given \c vaddr and \c level.
 #define PAGE_TABLE_INDEX(vaddr,level) ((vaddr >> (12 + level * 9)) & (PAGE_TABLE_ENTRIES-1))
 
 #define PAGE_LVL_PML4T 3

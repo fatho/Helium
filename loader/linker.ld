@@ -1,79 +1,71 @@
-OUTPUT_FORMAT(elf32-i386)
+OUTPUT_FORMAT(elf64-x86-64)
 ENTRY(boot32_bsp)
 
 SECTIONS
 {
-    . = 1K;
-    
-    /* place multiboot header in 16 bit code section. the entry point called
-     * by GRUB is in .text.
-     */
-    .text16 ALIGN(4K) :
+    .text 0x100000 /* 1 MiB */ : 
     {
+        __TEXT_START = .;
         *(.multiboot)
-        *(.text16)
+        *(.text)
+        *(.rodata)
+        *(.rodata*)
+        __TEXT_END = .;
     }
     
-    .rodata16 ALIGN(4K) :
-    {
-        *(.rodata16)
-    }
-
-    . = 1M;
-
-    .text ALIGN(4K) :
-    {
-        *(.text)
-    }
-
-    /* Read-only data. */
-    .rodata ALIGN(4K) :
-    {
-        *(.rodata)
-    }
-
     /* Read-write data (initialized) */
-    .data ALIGN(4K) :
+    .data :
     {
+        __DATA_START = .;
         *(.data)
+        __TEXT_END = .;
     }
 
     /* Read-write data (uninitialized) */
-    .bss ALIGN(4K) :
+    .bss :
     {
-        /* stack used in loader */
-        stack_bottom = .; . += 16K;
-        stack_top = .;
-        *(COMMON)
+        __BSS_START = .;
         *(.bss)
+        *(COMMON)
+        . = ALIGN(4K);
+        /* stack used in loader */
+        stack_bottom = .; . += 8K;
+        stack_top = .;
+        __BSS_END = .;
     }
     
-    .info ALIGN(4K) : 
+    .info 0x110000 /* 1 MiB + 64 KiB */ : 
     {
+        __INFO_START = .;
+        
         /* start marker */
         info_start = .;
         /* space for IDT and GDT */
         idt_data     = .; . += 4K;
-        gdt_data     = .; . += 4K;  /* defined in boot32.s */
-        /* space for initial page tables */
-        page_pml4t = .; . += 4K;
-        page_pdpt  = .; . += 4K;
-        page_pdt   = .; . += 4K;
-        page_pt    = .; . += 4K;
+        gdt_data     = .; . += 4K;
         /* info structures */
         info_table   = .; . += 4K;
         info_modules = .; . += 4K;
         info_mmap    = .; . += 4K;
         info_strings = .; . += 4K;
+        /* space for initial page tables */
+        page_id_pml4t = .; . += 4K;
+        page_id_pdpt  = .; . += 4K;
+        page_id_pdt   = .; . += 4K;
+        page_id_pt    = .; . += 4K * 16;
         
         /* end marker */
         info_end = .;
+        
+        __INFO_END = .;
     }
 
     /DISCARD/ :
     {
         *(.comment)
         *(.eh_frame)
+        *(.text16)
+        *(.rodata16)
     }
     
     /* mark the first free page after the loader */

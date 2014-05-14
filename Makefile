@@ -1,4 +1,4 @@
-.PHONY: all loader kernel64 clean install run
+.PHONY: all loader kernel64 clean install run doc
 
 CURDIR          := $(shell pwd)
 PREFIX          := $(CURDIR)/dist
@@ -32,3 +32,6 @@ clean:
 
 run: install
 	@ $(EMU) $(EMU_ARGS)
+
+doc:
+	@ doxygen doxygen.cfg

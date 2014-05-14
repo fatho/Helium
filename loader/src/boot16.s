@@ -1,5 +1,5 @@
 %include "macros.inc"
-section .text16
+section .text16 exec
 bits 16
 
 ;; import 32 bit entry point
