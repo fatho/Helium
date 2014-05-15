@@ -10,7 +10,7 @@
 
 #include "loader/pheap.h"
 #include "loader/kassert.h"
-#include "loader/paging.h"
+#include "loader/page.h"
 #include "loader/util.h"
 
 #include <stddef.h>

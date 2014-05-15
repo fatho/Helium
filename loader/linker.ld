@@ -3,6 +3,12 @@ ENTRY(boot32_bsp)
 
 SECTIONS
 {
+    .text16 0x1000 /* 4 KiB */ : 
+    {
+        *(.text16)
+        *(.rodata16)
+    }
+
     .text 0x100000 /* 1 MiB */ : 
     {
         __TEXT_START = .;
@@ -64,8 +70,6 @@ SECTIONS
     {
         *(.comment)
         *(.eh_frame)
-        *(.text16)
-        *(.rodata16)
     }
     
     /* mark the first free page after the loader */

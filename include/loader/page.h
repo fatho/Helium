@@ -8,8 +8,11 @@
 #ifndef PAGING_H_
 #define PAGING_H_
 
+/// Small page size (4KB)
 #define PAGE_SIZE 0x1000
+/// size of page table (4KB)
 #define PAGE_TABLE_SIZE 0x1000
+/// number of entries in page table (#PAGE_TABLE_SIZE / \c 8)
 #define PAGE_TABLE_ENTRIES (2<<9)
 
 /// Returns the smallest page aligned integer value greater than or equal to \c x
@@ -32,9 +35,13 @@
 /// calculates the page table index for the given \c vaddr and \c level.
 #define PAGE_TABLE_INDEX(vaddr,level) ((vaddr >> (12 + level * 9)) & (PAGE_TABLE_ENTRIES-1))
 
+/// Page Map Level 4 Table
 #define PAGE_LVL_PML4T 3
+/// Page Directory Pointer Table
 #define PAGE_LVL_PDPT  2
+/// Page Directory Table
 #define PAGE_LVL_PDT   1
+/// Page Table
 #define PAGE_LVL_PT    0
 
 #endif /* PAGING_H_ */

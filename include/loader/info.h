@@ -8,26 +8,35 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define INFO_SECTION
-//__attribute__((section(".info")))
+#define INFO_SECTION __attribute__((section(".info")))
+
+/// empty type used for markers
+typedef struct {} marker_t;
+
+/// pseudo index for an invalid entry in #info_modules
+#define NO_MODULE ((size_t)-1)
 
 /// pre-allocated IDT table
 extern idt64_t idt_data[HE_IDT_MAX_ENTRIES] INFO_SECTION;
 /// pre-allocated GDT for long mode
 extern uint64_t gdt_data[HE_GDT_MAX_ENTRIES] INFO_SECTION;
 
+/// structure containing all information and pointers to other tables
 extern he_info_t info_table INFO_SECTION;
+/// table containing information about loaded modules
 extern he_module_t info_modules[256] INFO_SECTION;
+/// table containing the memory map received from the bootloader
 extern he_mmap_t info_mmap[256] INFO_SECTION;
+/// memory region containing null terminated strings
 extern char info_strings[HE_STRING_TABLE_SIZE] INFO_SECTION;
 
 /// marker for beginning of info section
-extern uint8_t info_start[0] INFO_SECTION;
+extern marker_t info_start INFO_SECTION;
 /// marker for end of info section
-extern uint8_t info_end[0] INFO_SECTION;
+extern marker_t info_end INFO_SECTION;
 
 /// marker for end of loader binary
-extern uint8_t loader_end[0] INFO_SECTION;
+extern marker_t loader_end INFO_SECTION;
 
 
 /**

@@ -9,7 +9,7 @@
  */
 
 #include "loader/info.h"
-#include "loader/paging.h"
+#include "loader/page.h"
 #include "loader/pheap.h"
 #include "loader/screen.h"
 #include "loader/string.h"
@@ -22,11 +22,6 @@ void main_bsp() {
     info_init();
     pheap_init(info_table.free_paddr);
     info_debug_output();
-
-    extern uint8_t stack_top, stack_bottom;
-
-    kprintf("stack: %llx - %llx\n", &stack_bottom, &stack_top);
-    kprintf(".info: %llx - %llx\n", &info_start, &info_end);
 }
 
 /**
