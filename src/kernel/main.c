@@ -8,6 +8,8 @@
  * This is the first time C code is executed while booting.
  */
 
+#include "loader/acpi.h"
+#include "loader/debug.h"
 #include "loader/info.h"
 #include "loader/paging.h"
 #include "loader/pheap.h"
@@ -19,9 +21,17 @@
  * @brief 64 bit C entry point for bootstrap processor.
  */
 void main_bsp() {
+    int success;
+
     info_init();
-    pheap_init(info_table.free_paddr);
     info_debug_output();
+    pheap_init(info_table.free_paddr);
+
+    kprintf("TEST: %llx\n", paging_get_physical_addr(0x10000));
+    MAGIC_BREAK;
+
+    acpi_init();
+    acpi_debug_output();
 
     extern uint8_t stack_top, stack_bottom;
 

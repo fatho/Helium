@@ -8,8 +8,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define INFO_SECTION
-//__attribute__((section(".info")))
+#define INFO_SECTION __attribute__((section(".info")))
 
 /// pre-allocated IDT table
 extern idt64_t idt_data[HE_IDT_MAX_ENTRIES] INFO_SECTION;

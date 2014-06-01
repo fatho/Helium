@@ -3,10 +3,16 @@ ENTRY(boot32_bsp)
 
 SECTIONS
 {
+    .text16 0x1000 /* 4K */ :
+    {
+        *(.text16)
+        *(.rodata16)
+        *(.multiboot)
+    }
+
     .text 0x100000 /* 1 MiB */ : 
     {
         __TEXT_START = .;
-        *(.multiboot)
         *(.text)
         *(.rodata)
         *(.rodata*)
@@ -64,8 +70,6 @@ SECTIONS
     {
         *(.comment)
         *(.eh_frame)
-        *(.text16)
-        *(.rodata16)
     }
     
     /* mark the first free page after the loader */

@@ -1,4 +1,4 @@
-%include "macros.inc"
+%include "macros/macros.inc"
 section .text
 bits 64
 

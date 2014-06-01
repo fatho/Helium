@@ -1,4 +1,4 @@
-%include "macros.inc"
+%include "macros/macros.inc"
 ;;; Macros
 %macro panic 1 
    mov esi,%1
@@ -137,16 +137,16 @@ boot32_identity_map:
     ;; initializes first entries of the first three tables
     ;; set flags to 0x3 = 0b11 means: Read/Write and Present
     mov   eax, page_id_pdpt
-    or    eax, 0b11
+    or    eax, 0x3
     mov   DWORD [page_id_pml4t], eax
     
     mov   eax, page_id_pdt
-    or    eax, 0b11
+    or    eax, 0x3
     mov   DWORD [page_id_pdpt], eax
     
     ;; init first 16 entries in PDT
     mov   eax, page_id_pt       ; first PT
-    or    eax, 0b11             ; RW and PRESENT
+    or    eax, 0x3              ; RW and PRESENT
     mov   edi, page_id_pdt      ; start of PDT
     mov   ecx, 16               ; 16 entries
 .set_pdt_entry:
@@ -260,29 +260,29 @@ boot32_gdt_data:
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
-        db 0b10011000   ; access (Present, Ring0, Segment, Execute) 
-        db 0b00100000   ; flags (long mode) and limit (16..19)
+        db 10011000b    ; access (Present, Ring0, Segment, Execute) 
+        db 00100000b    ; flags (long mode) and limit (16..19)
         db 0x00         ; base (24..31)
     .kernel_data:   equ $ - boot32_gdt_data
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
-        db 0b10010010   ; access (Present, Ring0, Segment, Write) 
-        db 0b00000000   ; no flags and limit (16..19)
+        db 10010010b    ; access (Present, Ring0, Segment, Write) 
+        db 00000000b    ; no flags and limit (16..19)
         db 0x00         ; base (24..31)
     .user_code:   equ $ - boot32_gdt_data
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
-        db 0b11111000   ; access (Present, Ring3, Segment, Execute) 
-        db 0b00100000   ; flags (long mode) and limit (16..19)
+        db 11111000b    ; access (Present, Ring3, Segment, Execute) 
+        db 00100000b    ; flags (long mode) and limit (16..19)
         db 0x00         ; base (24..31)
     .user_data:   equ $ - boot32_gdt_data
         dw 0x0          ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
-        db 0b11110010   ; access (Present, Ring3, Segment, Write) 
-        db 0b00000000   ; no flags and limit (16..19)
+        db 11110010b    ; access (Present, Ring3, Segment, Write) 
+        db 00000000b    ; no flags and limit (16..19)
         db 0x00         ; base (24..31)
     .end:
     

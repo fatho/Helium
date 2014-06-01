@@ -22,7 +22,7 @@ export PATH="$PREFIX/bin:$PATH"
 
 
 BINUTILS_NAME="binutils-2.24"
-GCC_NAME="gcc-4.8.2"
+GCC_NAME="gcc-4.9.0"
 
 if [ ! -f "$BINUTILS_NAME.tar.gz" ]; then
     wget http://ftp.gnu.org/gnu/binutils/$BINUTILS_NAME.tar.gz

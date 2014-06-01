@@ -8,7 +8,6 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#define MAGIC_BREAK asm volatile ("xchg %%bx, %%bx" : : : )
 #define HALT { while(1) { asm volatile ("cli"); asm volatile ("hlt"); } }
 
 /**

@@ -6,7 +6,7 @@
  */
 
 #ifndef ASSERT_H_
-#define ASSERT_H_
+#define DEBUG_H_
 
 #include "util.h"
 
@@ -21,6 +21,19 @@
 
 #define kassert(cond,msg)
 #define kassertf(cond,msg,...)
+
+#endif
+
+#ifdef DEBUG
+
+#define DEBUGF(...) kprintf( __VA_ARGS__);
+
+#define MAGIC_BREAK asm volatile ("xchg %%bx, %%bx" : : : )
+
+#else
+
+#define DEBUGF(msg,...)
+#define MAGIC_BREAK
 
 #endif
 

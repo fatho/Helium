@@ -1,0 +1,4 @@
+menuentry "${OS_NAME}" {
+	  multiboot /boot/${KERNEL_EXECUTABLE}
+	  boot
+}

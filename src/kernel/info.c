@@ -8,6 +8,7 @@
  */
 
 #include "loader/info.h"
+#include "loader/debug.h"
 #include "loader/multiboot.h"
 #include "loader/paging.h"
 #include "loader/screen.h"
@@ -128,6 +129,7 @@ char* info_string_alloc(size_t length) {
  * @brief Writes the contents of the info structures to the screen.
  */
 void info_debug_output() {
+    screen_color = SCREENCOLOR(BLACK, BROWN | LIGHT_OR_BLINK);
     kputs("info structure\n");
     kputs("==============\n");
     kprintf("IDT        @ %llx\n", info_table.idt_paddr);
@@ -151,6 +153,7 @@ void info_debug_output() {
             total_avail_mem += info_mmap[i].length;
     }
     kprintf("TOTAL MEM  = %llx\n", total_avail_mem);
+    screen_color = SCREENCOLOR(BLACK, WHITE);
 }
 
 /**
@@ -173,10 +176,14 @@ void info_init() {
     info_parse_modules((multiboot_mod_t*) (uintptr_t) multiboot_info->mods,
             multiboot_info->mods_count);
 
+    // find first free address
     uintptr_t free_paddr = (uintptr_t) &loader_end;
-    for(int i = 0; i < multiboot_info->mods_count; i++) {
-
+    for(size_t i = 0; i < multiboot_info->mods_count; i++) {
+        if(info_modules[i].length > free_paddr) {
+            free_paddr = info_modules[i].length;
+        }
     }
+
     // align to next page
     info_table.free_paddr = ((uintptr_t) &loader_end + 0xFFF) & ~0xFFF;
 }

@@ -9,7 +9,7 @@
  */
 
 #include "loader/pheap.h"
-#include "loader/kassert.h"
+#include "loader/debug.h"
 #include "loader/paging.h"
 #include "loader/util.h"
 

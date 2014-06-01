@@ -1,9 +1,6 @@
-%include "macros.inc"
-section .text16 exec
+%include "macros/macros.inc"
+section .text16
 bits 16
-
-;; import 32 bit entry point
-extern boot32_ap
 
 ;;; @brief 16 bit entry point for application processors. 
 ;;;
@@ -34,6 +31,10 @@ boot16_fast_a20:
     ret
     
 bits 32
+
+;; import 32 bit entry point
+extern boot32_ap
+
 ;;; @brief Trampoline to 32 bit code, because 16 bit code cannot address the code above 0x100000 (1 MiB).
 ;;; @remark Jumped to by boot16_ap, jumping to boot32_ap
 boot32_ap_trampoline:
@@ -48,15 +49,15 @@ boot16_gdt_data:
         dw 0xFFFF       ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
-        db 0b10011000   ; access (Present, Ring0, Segment, Execute) 
-        db 0b11001111   ; flags (4 KiB limit, protected mode) and limit (16..19)
+        db 10011000b    ; access (Present, Ring0, Segment, Execute) 
+        db 11001111b   ; flags (4 KiB limit, protected mode) and limit (16..19)
         db 0x00         ; base (24..31)
     .kernel_data:   equ $ - boot16_gdt_data
         dw 0xFFFF       ; limit (0..15)
         dw 0x0          ; base  (0..15)
         db 0x0          ; base  (16..23)
-        db 0b10010010   ; access (Present, Ring0, Segment, Write) 
-        db 0b11001111   ; flags (4 KiB limit, protected mode) and limit (16..19)
+        db 10010010b    ; access (Present, Ring0, Segment, Write) 
+        db 11001111b    ; flags (4 KiB limit, protected mode) and limit (16..19)
         db 0x00         ; base (24..31)
     .pointer:
         dw $ - boot16_gdt_data - 1

@@ -65,12 +65,47 @@ void kputchar(int chr) {
 /**
  * @brief writes a number to the VGA memory in 64 bit hexadecimal format.
  */
-void kputi(uint64_t number) {
+void kputhex(uint64_t number) {
     for (int i = 0; i <= 15; i++) {
         uint8_t block = (number >> (4 * (15 - i))) & 0xF;
         char chr = (block < 10) ? '0' + block : 'A' + (block - 10);
         kputchar(chr);
     }
+}
+
+/**
+ * @brief Converts a signed integer value to a decimal string and writes it to the buffer.
+ */
+void itoa(int64_t value, char* buf, size_t bufsz) {
+    int negative = value < 0;
+    if(negative) {
+        value = -value;
+        if(bufsz > 0) {
+            buf[0] = '-';
+            buf++;
+            bufsz--;
+        }
+    }
+    uitoa(value, buf, bufsz);
+}
+
+/**
+ * @brief Converts an unsigned integer value to a decimal string and writes it to the buffer.
+ */
+void uitoa(uint64_t value, char* buf, size_t bufsz) {
+    char tmpbuf[24];
+    memset(tmpbuf, 0, sizeof(tmpbuf));
+    int offset = sizeof(tmpbuf) - 1;
+    do {
+        offset -= 1;
+        tmpbuf[offset] = '0' + (value % 10);
+        value = value / 10;
+    } while(value != 0 && offset > 0);
+    int tmplen = sizeof(tmpbuf) - offset;
+    if(tmplen > bufsz) {
+        tmplen = bufsz;
+    }
+    memcpy(buf, tmpbuf + offset, tmplen);
 }
 
 /**
@@ -119,6 +154,19 @@ void kvprintf(const char* format, va_list vl) {
         case 'c': {
             char arg = va_arg(vl, int);
             kputchar(arg);
+            break;
+        }
+        case 'd': {
+            char buf[24];
+            memset(buf, 0, sizeof(buf));
+            int64_t arg;
+            if(longcnt >= 2) {
+                arg = va_arg(vl, int64_t);
+            } else {
+                arg = va_arg(vl, int64_t);
+            }
+            itoa(arg, buf, sizeof(buf));
+            kputs(buf);
             break;
         }
         case 'x':

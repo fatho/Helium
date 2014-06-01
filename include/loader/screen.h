@@ -26,7 +26,7 @@
 /**
  * Calculates a VGA color byte from fore- and background color.
  */
-#define SCREENCOLOR(BG,FG) ((BG << 4) | (FG & 0x0F))
+#define SCREENCOLOR(BG,FG) (((BG) << 4) | ((FG) & 0x0F))
 /// the light color or blink bit
 #define LIGHT_OR_BLINK 0x8
 #define BLACK   0x0
@@ -82,7 +82,7 @@ void kvprintf(const char* format, va_list vl);
 /**
  * @brief writes a number to the VGA memory in 64 bit hexadecimal format.
  */
-void kputi(uint64_t number);
+void kputhex(uint64_t number);
 
 /**
  * @brief clears the screen with the specified color. sets the default color for subsequent screen calls.
