@@ -15,9 +15,13 @@ extern idt64_t idt_data[HE_IDT_MAX_ENTRIES] INFO_SECTION;
 /// pre-allocated GDT for long mode
 extern uint64_t gdt_data[HE_GDT_MAX_ENTRIES] INFO_SECTION;
 
+/// structure containing all information and pointers to other tables
 extern he_info_t info_table INFO_SECTION;
+/// table containing information about loaded modules
 extern he_module_t info_modules[256] INFO_SECTION;
+/// table containing the memory map received from the bootloader
 extern he_mmap_t info_mmap[256] INFO_SECTION;
+/// memory region containing null terminated strings
 extern char info_strings[HE_STRING_TABLE_SIZE] INFO_SECTION;
 
 /// marker for beginning of info section

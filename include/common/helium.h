@@ -8,6 +8,8 @@
 #ifndef HELIUM_H_
 #define HELIUM_H_
 
+#include <stdint.h>
+
 /// Helium uses 4KB pages for most allocations
 #define HE_PAGE_SIZE 0x1000
 
@@ -55,13 +57,14 @@ typedef struct {
     uintptr_t idt_paddr;            ///< physical address of IDT
     uintptr_t gdt_paddr;            ///< physical address of GDT
     uintptr_t free_paddr;           ///< physical address of first free page
-    uint32_t  mod_count;            ///< number of modules in module table
-    uint32_t  mmap_count;           ///< number of entries in memory-map-t
-    uintptr_t mod_table;            ///< physical address of module tableable
-    uintptr_t mmap_table;           ///< physical address of memory-map-table
+    uintptr_t module_table_paddr;   ///< physical address of module table
+    uintptr_t mmap_table_paddr;     ///< physical address of memory-map-table
+    uintptr_t string_table_paddr;   ///< physical address of string table
+
+    uint32_t  module_count;         ///< number of modules in module table
+    uint32_t  mmap_count;           ///< number of entries in memory-map-table
     uint32_t  string_table_size;    ///< size of string table in bytes
-    uintptr_t string_table;         ///< physical address of string table
-    uint16_t  cmdline;              ///< kernel command line (does not include the "kernel64" part)
+    uint32_t  kernel_module;        ///< index of the kernel module in #mod_table
 }__attribute__((packed)) he_info_t;
 
 

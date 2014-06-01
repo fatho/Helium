@@ -10,7 +10,7 @@
 #include "loader/info.h"
 #include "loader/debug.h"
 #include "loader/multiboot.h"
-#include "loader/paging.h"
+#include "loader/page.h"
 #include "loader/screen.h"
 #include "loader/string.h"
 #include "loader/util.h"
@@ -63,7 +63,7 @@ void info_parse_modules(multiboot_mod_t* modules, uint32_t modcount) {
         }
     }
 
-    info_table.mod_count = modcount;
+    info_table.module_count = modcount;
 }
 
 /**
@@ -134,15 +134,15 @@ void info_debug_output() {
     kputs("==============\n");
     kprintf("IDT        @ %llx\n", info_table.idt_paddr);
     kprintf("GDT        @ %llx\n", info_table.gdt_paddr);
-    kprintf("MOD_TABLE  @ %llx\n", info_table.mod_table);
-    kprintf("#MODULES   = %x\n", info_table.mod_count);
+    kprintf("MOD_TABLE  @ %llx\n", info_table.module_table_paddr);
+    kprintf("#MODULES   = %x\n", info_table.module_count);
 
-    for (unsigned int i = 0; i < info_table.mod_count; i++) {
+    for (unsigned int i = 0; i < info_table.module_count; i++) {
         kprintf("  [%s]\n", info_strings + info_modules[i].cmdline);
         kprintf("    addr_start: %llx\n", info_modules[i].paddr);
         kprintf("    length    : %x\n", info_modules[i].length);
     }
-    kprintf("info_mmap @ %llx\n", info_table.mmap_table);
+    kprintf("info_mmap @ %llx\n", info_table.mmap_table_paddr);
     kprintf("#MMAPS     = %x\n", info_table.mmap_count);
     uint64_t total_avail_mem = 0;
     for (unsigned int i = 0; i < info_table.mmap_count; i++) {
@@ -168,22 +168,21 @@ void info_init() {
     // populate info table
     info_table.idt_paddr = (uintptr_t) idt_data;
     info_table.gdt_paddr = (uintptr_t) gdt_data;
-    info_table.mod_table = (uintptr_t) info_modules;
-    info_table.mmap_table = (uintptr_t) info_mmap;
+    info_table.module_table_paddr = (uintptr_t) info_modules;
+    info_table.mmap_table_paddr = (uintptr_t) info_mmap;
 
     info_parse_mmap(multiboot_info->mmap, multiboot_info->mmap_len);
 
     info_parse_modules((multiboot_mod_t*) (uintptr_t) multiboot_info->mods,
             multiboot_info->mods_count);
 
-    // find first free address
-    uintptr_t free_paddr = (uintptr_t) &loader_end;
-    for(size_t i = 0; i < multiboot_info->mods_count; i++) {
-        if(info_modules[i].length > free_paddr) {
-            free_paddr = info_modules[i].length;
+    uintptr_t free_paddr_max = (uintptr_t) &loader_end;
+    for(unsigned int i = 0; i < info_table.module_count; i++) {
+        uintptr_t mod_end = info_modules[i].paddr + info_modules[i].length;
+        if(mod_end > free_paddr_max) {
+            free_paddr_max = mod_end;
         }
     }
-
     // align to next page
     info_table.free_paddr = ((uintptr_t) &loader_end + 0xFFF) & ~0xFFF;
 }

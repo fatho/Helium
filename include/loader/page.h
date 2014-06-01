@@ -13,6 +13,13 @@
 #define PAGE_TABLE_SIZE 0x1000
 #define PAGE_TABLE_ENTRIES (1<<9)
 
+/// Small page size (4KB)
+#define PAGE_SIZE 0x1000
+/// size of page table (4KB)
+#define PAGE_TABLE_SIZE 0x1000
+/// number of entries in page table (#PAGE_TABLE_SIZE / \c 8)
+#define PAGE_TABLE_ENTRIES (2<<9)
+
 #define PAGE_SIZE 0x1000
 /// Returns the smallest page aligned integer value greater than or equal to \c x
 #define PAGE_CEIL(x) (((uintptr_t)(x) + PAGE_SIZE-1) & ~(PAGE_SIZE-1))
@@ -54,9 +61,13 @@
 /// calculates the size of a page when addressed by the given level
 #define PAGE_LVL_SIZE(lvl) (1<<(12 + (lvl) * 9))
 
+/// Page Map Level 4 Table
 #define PAGE_LVL_PML4T 3
+/// Page Directory Pointer Table
 #define PAGE_LVL_PDPT  2
+/// Page Directory Table
 #define PAGE_LVL_PDT   1
+/// Page Table
 #define PAGE_LVL_PT    0
 
 /**
