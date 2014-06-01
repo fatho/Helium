@@ -8,12 +8,14 @@
  * This is the first time C code is executed while booting.
  */
 
-#include "loader/info.h"
-#include "loader/page.h"
-#include "loader/pheap.h"
-#include "loader/screen.h"
-#include "loader/string.h"
-#include "loader/util.h"
+#include "kernel/acpi.h"
+#include "kernel/debug.h"
+#include "kernel/info.h"
+#include "kernel/page.h"
+#include "kernel/pheap.h"
+#include "kernel/screen.h"
+#include "kernel/string.h"
+#include "kernel/util.h"
 
 /**
  * @brief 64 bit C entry point for bootstrap processor.

@@ -7,7 +7,7 @@
  * @brief This module contains functions for dealing with ELF64 binaries.
  */
 
-#include "loader/elf64.h"
+#include "kernel/elf64.h"
 
 /**
  * calculates a has value for an ELF symbol name to be used with

@@ -7,8 +7,8 @@
  * @brief This module contains some useful helper functions.
  */
 
-#include "loader/util.h"
-#include "loader/screen.h"
+#include "kernel/util.h"
+#include "kernel/screen.h"
 
 #include <stdarg.h>
 
@@ -20,7 +20,7 @@
 void kpanic(const char* message) {
     clear_screen(SCREENCOLOR(BLUE, WHITE));
     kputs(message);
-    HALT;
+    __halt__;
 }
 
 /**
@@ -35,5 +35,5 @@ void kpanicf(const char* message, ...) {
     va_start(vl, message);
     kvprintf(message,vl);
     va_end(vl);
-    HALT;
+    __halt__;
 }

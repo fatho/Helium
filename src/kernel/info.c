@@ -7,13 +7,13 @@
  * about the hardware and memory.
  */
 
-#include "loader/info.h"
-#include "loader/debug.h"
-#include "loader/multiboot.h"
-#include "loader/page.h"
-#include "loader/screen.h"
-#include "loader/string.h"
-#include "loader/util.h"
+#include "kernel/info.h"
+#include "kernel/debug.h"
+#include "kernel/multiboot.h"
+#include "kernel/page.h"
+#include "kernel/screen.h"
+#include "kernel/string.h"
+#include "kernel/util.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -35,9 +35,9 @@ multiboot_info_t* multiboot_info;
  * @remark uses string_table_alloc(size_t), so this function may panic,
  * when there is no space left in the string table.
  */
-void info_parse_modules(multiboot_mod_t* modules, uint32_t modcount) {
+void info_parse_modules(multiboot_mod_t* modules, int modcount) {
     // copy multiboot information to module table
-    for (uint32_t i = 0; i < modcount; i++) {
+    for (int i = 0; i < modcount; i++) {
         info_modules[i].paddr = modules[i].addr_start;
         info_modules[i].length = modules[i].addr_end;
 
@@ -49,8 +49,8 @@ void info_parse_modules(multiboot_mod_t* modules, uint32_t modcount) {
     }
 
     // sort entries by start address
-    for (uint32_t i = 0; i < modcount - 1; i++) {
-        uint32_t min_idx = i;
+    for (int i = 0; i < modcount - 1; i++) {
+        int min_idx = i;
         for (uint32_t j = i + 1; i < modcount; i++) {
             if (info_modules[j].paddr < info_modules[min_idx].paddr) {
                 min_idx = j;

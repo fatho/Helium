@@ -7,12 +7,12 @@
  * @brief Contains basic functionality to find and parse ACPI tables.
  */
 
-#include "loader/acpi.h"
-#include "loader/debug.h"
-#include "loader/paging.h"
-#include "loader/screen.h"
-#include "loader/string.h"
-#include "loader/util.h"
+#include "kernel/acpi.h"
+#include "kernel/debug.h"
+#include "kernel/page.h"
+#include "kernel/screen.h"
+#include "kernel/string.h"
+#include "kernel/util.h"
 
 #include <stdint.h>
 

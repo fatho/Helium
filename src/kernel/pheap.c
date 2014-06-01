@@ -8,10 +8,10 @@
  * with each allocation and does not handle freeing of memory blocks.
  */
 
-#include "loader/pheap.h"
-#include "loader/debug.h"
-#include "loader/page.h"
-#include "loader/util.h"
+#include "kernel/pheap.h"
+#include "kernel/debug.h"
+#include "kernel/page.h"
+#include "kernel/util.h"
 
 #include <stddef.h>
 #include <stdint.h>

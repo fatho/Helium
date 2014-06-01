@@ -8,7 +8,7 @@
 #ifndef UTIL_H_
 #define UTIL_H_
 
-#define HALT { while(1) { asm volatile ("cli"); asm volatile ("hlt"); } }
+#define __halt__ { while(1) { asm volatile ("cli"); asm volatile ("hlt"); } }
 
 /**
  * @brief prints \c message to the screen and halts.

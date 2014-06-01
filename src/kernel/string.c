@@ -6,11 +6,8 @@
  *
  * @brief This module implements a few important string functions from the C standard.
  */
-
-#include "loader/string.h"
-#include "loader/util.h"
-
 #include <stdint.h>
+#include <stddef.h>
 
 void* memset(void* ptr, int value, size_t num) {
     unsigned char* data = (unsigned char*) ptr;

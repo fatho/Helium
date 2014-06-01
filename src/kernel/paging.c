@@ -6,11 +6,11 @@
  * @brief This module contains basic paging functionality.
  */
 
-#include "loader/debug.h"
-#include "loader/paging.h"
-#include "loader/pheap.h"
-#include "loader/string.h"
-#include "loader/screen.h"
+#include "kernel/debug.h"
+#include "kernel/page.h"
+#include "kernel/pheap.h"
+#include "kernel/string.h"
+#include "kernel/screen.h"
 #include <stdint.h>
 #include <stddef.h>
 

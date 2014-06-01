@@ -6,16 +6,18 @@ set(OS_NAME "Helium")
 set(KERNEL_NAME "kernel")
 set(KERNEL_EXECUTABLE "${KERNEL_NAME}.sys")
 
+
 # default prefix
-set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist") # CACHE FILEPATH "install target")
+set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE PATH "Helium install prefix")
 
 # build kernel
 add_subdirectory(src/grub)
 add_subdirectory(src/kernel)
 
-#-- Add an Option to toggle the generation of the API documentation
-option(BUILD_DOCUMENTATION "Use Doxygen to create the HTML based API documentation" OFF)
-if(BUILD_DOCUMENTATION)
+# options
+option(BUILD_DOC "Use Doxygen to create the HTML based API documentation" OFF)
+
+if(BUILD_DOC)
   FIND_PACKAGE(Doxygen)
   if (NOT DOXYGEN_FOUND)
     message(FATAL_ERROR 

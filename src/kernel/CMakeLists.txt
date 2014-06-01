@@ -10,7 +10,6 @@ set(LDFILE "${PROJECT_SOURCE_DIR}/linker.ld")
 include_directories(${PROJECT_SOURCE_DIR}/../../include)
 
 # compiler flags
-set(ASM_FLAGS "-f elf64")
 set(C_FLAGS "-std=gnu99 -ffreestanding -Wall -Wextra")
 set(LD_FLAGS "-T ${LDFILE} -z max-page-size=0x1000")
 
@@ -36,5 +35,9 @@ install(TARGETS ${KERNEL_EXECUTABLE} DESTINATION boot)
 set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 set(CMAKE_C_FLAGS "${C_FLAGS}")
-set(CMAKE_ASM_FLAGS "${ASM_FLAGS}")
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(CMAKE_ASM_NASM_FLAGS "-g dwarf2")
+endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
+
 set_target_properties(${KERNEL_EXECUTABLE} PROPERTIES LINK_FLAGS "${LD_FLAGS}")

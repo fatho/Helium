@@ -7,9 +7,9 @@
  * @brief This module contains a basic screen output system.
  */
 
-#include "loader/screen.h"
-#include "loader/string.h"
-#include "loader/util.h"
+#include "kernel/screen.h"
+#include "kernel/string.h"
+#include "kernel/util.h"
 #include <stdarg.h>
 #include <stdint.h>
 
@@ -74,6 +74,25 @@ void kputhex(uint64_t number) {
 }
 
 /**
+ * @brief Converts an unsigned integer value to a decimal string and writes it to the buffer.
+ */
+void uitoa(uint64_t value, char* buf, size_t bufsz) {
+    char tmpbuf[24];
+    memset(tmpbuf, 0, sizeof(tmpbuf));
+    int offset = sizeof(tmpbuf) - 1;
+    do {
+        offset -= 1;
+        tmpbuf[offset] = '0' + (value % 10);
+        value = value / 10;
+    } while(value != 0 && offset > 0);
+    size_t tmplen = sizeof(tmpbuf) - offset;
+    if(tmplen > bufsz) {
+        tmplen = bufsz;
+    }
+    memcpy(buf, tmpbuf + offset, tmplen);
+}
+
+/**
  * @brief Converts a signed integer value to a decimal string and writes it to the buffer.
  */
 void itoa(int64_t value, char* buf, size_t bufsz) {
@@ -87,25 +106,6 @@ void itoa(int64_t value, char* buf, size_t bufsz) {
         }
     }
     uitoa(value, buf, bufsz);
-}
-
-/**
- * @brief Converts an unsigned integer value to a decimal string and writes it to the buffer.
- */
-void uitoa(uint64_t value, char* buf, size_t bufsz) {
-    char tmpbuf[24];
-    memset(tmpbuf, 0, sizeof(tmpbuf));
-    int offset = sizeof(tmpbuf) - 1;
-    do {
-        offset -= 1;
-        tmpbuf[offset] = '0' + (value % 10);
-        value = value / 10;
-    } while(value != 0 && offset > 0);
-    int tmplen = sizeof(tmpbuf) - offset;
-    if(tmplen > bufsz) {
-        tmplen = bufsz;
-    }
-    memcpy(buf, tmpbuf + offset, tmplen);
 }
 
 /**

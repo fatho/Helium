@@ -1,9 +1,9 @@
 #ifndef INFO_H_
 #define INFO_H_
 
-#include "common/idt.h"
 #include "common/helium.h"
-#include "loader/multiboot.h"
+#include "kernel/idt.h"
+#include "kernel/multiboot.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -45,7 +45,7 @@ extern uint8_t loader_end[0] INFO_SECTION;
  * @remark uses string_table_alloc(size_t), so this function may panic,
  * when there is no space left in the string table.
  */
-void info_parse_modules(multiboot_mod_t* modules, uint32_t modcount);
+void info_parse_modules(multiboot_mod_t* modules, int modcount);
 
 /**
  * @brief Parses the given multiboot memory map and stores the results

@@ -65,12 +65,6 @@ SECTIONS
         
         __INFO_END = .;
     }
-
-    /DISCARD/ :
-    {
-        *(.comment)
-        *(.eh_frame)
-    }
     
     /* mark the first free page after the loader */
     . = ALIGN(4K);

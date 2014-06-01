@@ -57,24 +57,16 @@ typedef struct {
     uintptr_t idt_paddr;            ///< physical address of IDT
     uintptr_t gdt_paddr;            ///< physical address of GDT
     uintptr_t free_paddr;           ///< physical address of first free page
-    uintptr_t module_table_paddr;   ///< physical address of module table
-    uintptr_t mmap_table_paddr;     ///< physical address of memory-map-table
+    uintptr_t module_table_paddr;   ///< physical address of module table (see #he_module_t)
+    uintptr_t mmap_table_paddr;     ///< physical address of memory-map-table (see #he_mmap_t)
     uintptr_t string_table_paddr;   ///< physical address of string table
 
     uint32_t  module_count;         ///< number of modules in module table
     uint32_t  mmap_count;           ///< number of entries in memory-map-table
     uint32_t  string_table_size;    ///< size of string table in bytes
-    uint32_t  kernel_module;        ///< index of the kernel module in #mod_table
+    uint32_t  kernel_module;        ///< index of the kernel module in module table (see #module_table_paddr)
 }__attribute__((packed)) he_info_t;
 
-
-/********************************************************************
- * KERNEL INFORMATION STRUCTURES
- ********************************************************************/
-
-typedef struct {
-
-}__attribute__((packed)) he_kernel_header_t;
 
 
 #endif /* INFO_H_ */

@@ -10,15 +10,12 @@
 
 #include <stdint.h>
 
-#define PAGE_TABLE_SIZE 0x1000
-#define PAGE_TABLE_ENTRIES (1<<9)
-
 /// Small page size (4KB)
 #define PAGE_SIZE 0x1000
 /// size of page table (4KB)
 #define PAGE_TABLE_SIZE 0x1000
 /// number of entries in page table (#PAGE_TABLE_SIZE / \c 8)
-#define PAGE_TABLE_ENTRIES (2<<9)
+#define PAGE_TABLE_ENTRIES (1<<9)
 
 #define PAGE_SIZE 0x1000
 /// Returns the smallest page aligned integer value greater than or equal to \c x
