@@ -1,4 +1,6 @@
 %include "macros/macros.inc"
+%define TARGET 0x1000
+
 section .text16
 bits 16
 
@@ -39,7 +41,7 @@ extern boot32_ap
 ;;; @remark Jumped to by boot16_ap, jumping to boot32_ap
 boot32_ap_trampoline:
     jmp boot32_ap
-    
+
 section .rodata16
  
 boot16_gdt_data:

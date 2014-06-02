@@ -8,30 +8,19 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define INFO_SECTION __attribute__((section(".info")))
-
 /// pre-allocated IDT table
-extern idt64_t idt_data[HE_IDT_MAX_ENTRIES] INFO_SECTION;
+extern idt64_t idt_data[HE_IDT_MAX_ENTRIES];
 /// pre-allocated GDT for long mode
-extern uint64_t gdt_data[HE_GDT_MAX_ENTRIES] INFO_SECTION;
+extern uint64_t gdt_data[HE_GDT_MAX_ENTRIES];
 
 /// structure containing all information and pointers to other tables
-extern he_info_t info_table INFO_SECTION;
+extern he_info_t info_table;
 /// table containing information about loaded modules
-extern he_module_t info_modules[256] INFO_SECTION;
+extern he_module_t info_modules[256];
 /// table containing the memory map received from the bootloader
-extern he_mmap_t info_mmap[256] INFO_SECTION;
+extern he_mmap_t info_mmap[256];
 /// memory region containing null terminated strings
-extern char info_strings[HE_STRING_TABLE_SIZE] INFO_SECTION;
-
-/// marker for beginning of info section
-extern uint8_t info_start[0] INFO_SECTION;
-/// marker for end of info section
-extern uint8_t info_end[0] INFO_SECTION;
-
-/// marker for end of loader binary
-extern uint8_t loader_end[0] INFO_SECTION;
-
+extern char info_strings[HE_STRING_TABLE_SIZE];
 
 /**
  * @brief Parses the given multiboot module table and stores the results

@@ -5,7 +5,7 @@
    jmp boot32_panic
 %endmacro
 ;;; Code
-section .text
+section .boot
 bits 32
 
 ;; export 32 bits entry points
@@ -15,8 +15,6 @@ global boot32_ap
 ;; import 64 bit entry points
 extern boot64_bsp
 extern boot64_ap
-
-extern multiboot_info   ; defined in multiboot.c
 
 ;; symbols from linker.ld
 extern info_start
@@ -35,7 +33,7 @@ extern gdt_data
 boot32_bsp:
     cli                         ; clear interrupts until we have IDT
     mov   dword [multiboot_info], ebx ; save multiboot pointer
-    mov   esp, stack_top        ; setup stack
+    mov   esp, boot_stack_end   ; setup stack
 
     ;; check if cpuid-instruction is supported
     call  has_cpuid
@@ -54,7 +52,6 @@ boot32_bsp:
     test  edx, 1 << 29          ; edx bit 29: Long Mode
     jz    .no_longmode
 
-    call boot32_clear_info_section
     call boot32_copy_gdt
     call boot32_identity_map
     call boot32_prepare
@@ -105,21 +102,6 @@ boot32_ap:
     
     halt
 
-;;; Function:
-;;;     Clears out the space between extra_start and extra_end (defined in linker.ld)
-boot32_clear_info_section:
-    xor eax, eax
-    ;; edi = start
-    mov edi, info_start
-    ;; ecx = length divided by 4
-    mov ecx, info_end
-    sub ecx, edi
-    shr ecx, 2
-    ;; clear extra section
-    cld
-    rep stosd
-    ret
-
 ;;; @brief copies the GDT from .rodata to \c gdt_data in \c .info
 ;;;
 boot32_copy_gdt:
@@ -127,7 +109,7 @@ boot32_copy_gdt:
     mov edi, gdt_data
     mov ecx, boot32_gdt_data.end - boot32_gdt_data
     rep movsb
-
+    ret
 
 ;;; Function:
 ;;;     Initializes 64 Bit page tables with identity mapping for the first 32 MiB minus 4 KiB.
@@ -138,11 +120,13 @@ boot32_identity_map:
     ;; set flags to 0x3 = 0b11 means: Read/Write and Present
     mov   eax, page_id_pdpt
     or    eax, 0x3
-    mov   DWORD [page_id_pml4t], eax
+    mov   DWORD [page_id_pml4t], eax        ; set first entry in PML4T
+    mov   DWORD [page_id_pml4t+0xFF8], eax  ; set last entry in PML4T
     
     mov   eax, page_id_pdt
     or    eax, 0x3
-    mov   DWORD [page_id_pdpt], eax
+    mov   DWORD [page_id_pdpt], eax         ; set first entry in PDPT
+    mov   DWORD [page_id_pdpt+0xFF0], eax   ; set last entry in PDPT to map the higher half
     
     ;; init first 16 entries in PDT
     mov   eax, page_id_pt       ; first PT
@@ -175,6 +159,8 @@ boot32_identity_map:
 ;;;     * enables long mode
 ;;;     * enables paging
 boot32_prepare:
+    magicbreak;
+
     ;; enable PAE
     mov   eax, cr4
     or    eax, 1 << 5           ; Set the PAE-bit, which is the 6th bit (bit 5).
@@ -246,8 +232,6 @@ boot32_panic:
     
     halt  
 
-section .rodata
-
 msg_notimplemented: db "*** NOT IMPLEMENTED ***",0
 msg_nocpuid:        db "*** CPUID not supported ***",0
 msg_nolongmode:     db "*** 64 Bit (LONG MODE) not supported ***",0
@@ -286,9 +270,11 @@ boot32_gdt_data:
         db 0x00         ; base (24..31)
     .end:
     
-        
 boot32_gdt_pointer:
     dw boot32_gdt_data.end - boot32_gdt_data - 1 ; limit
     dq gdt_data         ; base
 
-    
+boot_stack: times 0x2000 db 0
+boot_stack_end:
+
+multiboot_info: dd 0x0

@@ -27,13 +27,14 @@
 #ifdef DEBUG
 
 #define DEBUGF(...) kprintf( __VA_ARGS__);
-
 #define MAGIC_BREAK asm volatile ("xchg %%bx, %%bx" : : : )
+#define DEBUG_HALT { int foo = 1; while(foo); }
 
 #else
 
 #define DEBUGF(msg,...)
 #define MAGIC_BREAK
+#define DEBUG_HALT
 
 #endif
 

@@ -30,11 +30,6 @@ void main_bsp() {
 
     acpi_init();
     acpi_debug_output();
-
-    extern uint8_t stack_top, stack_bottom;
-
-    kprintf("stack: %llx - %llx\n", &stack_bottom, &stack_top);
-    kprintf(".info: %llx - %llx\n", &info_start, &info_end);
 }
 
 /**

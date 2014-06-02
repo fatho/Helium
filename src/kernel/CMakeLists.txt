@@ -10,7 +10,7 @@ set(LDFILE "${PROJECT_SOURCE_DIR}/linker.ld")
 include_directories(${PROJECT_SOURCE_DIR}/../../include)
 
 # compiler flags
-set(C_FLAGS "-std=gnu99 -ffreestanding -Wall -Wextra")
+set(C_FLAGS "-std=gnu99 -mcmodel=kernel -ffreestanding -Wall -Wextra")
 set(LD_FLAGS "-T ${LDFILE} -z max-page-size=0x1000")
 
 # compilers
@@ -20,6 +20,7 @@ set(CMAKE_C_LINK_EXECUTABLE "x86_64-elf-ld <LINK_FLAGS> <OBJECTS>  -o <TARGET> <
 
 enable_language(ASM_NASM)
 set(CMAKE_ASM_NASM_COMPILER "yasm")
+SET (CMAKE_ASM_NASM_OBJECT_FORMAT "elf64")
 
 # gather files
 file(GLOB_RECURSE CFILES *.c)

@@ -21,7 +21,22 @@
 /**
  * @brief pointer to multiboot info structure. set by #boot32_bsp in boot32.s
  */
-multiboot_info_t* multiboot_info;
+static multiboot_info_t* multiboot_info;
+
+/// pre-allocated IDT table
+idt64_t idt_data[HE_IDT_MAX_ENTRIES];
+/// pre-allocated GDT for long mode
+uint64_t gdt_data[HE_GDT_MAX_ENTRIES];
+
+/// structure containing all information and pointers to other tables
+he_info_t info_table;
+/// table containing information about loaded modules
+he_module_t info_modules[256];
+/// table containing the memory map received from the bootloader
+he_mmap_t info_mmap[256];
+/// memory region containing null terminated strings
+char info_strings[HE_STRING_TABLE_SIZE];
+
 
 /**
  * @brief Parses the given multiboot module table and stores the results
@@ -176,6 +191,7 @@ void info_init() {
     info_parse_modules((multiboot_mod_t*) (uintptr_t) multiboot_info->mods,
             multiboot_info->mods_count);
 
+    extern uint8_t loader_end;
     uintptr_t free_paddr_max = (uintptr_t) &loader_end;
     for(unsigned int i = 0; i < info_table.module_count; i++) {
         uintptr_t mod_end = info_modules[i].paddr + info_modules[i].length;
