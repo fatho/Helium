@@ -8,7 +8,7 @@
 #ifndef ASSERT_H_
 #define DEBUG_H_
 
-#include "util.h"
+#include "kernel/panic.h"
 
 #ifdef ASSERTIONS
 

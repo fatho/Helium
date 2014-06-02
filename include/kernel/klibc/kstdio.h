@@ -26,7 +26,7 @@
 /**
  * Calculates a VGA color byte from fore- and background color.
  */
-#define SCREENCOLOR(BG,FG) (((BG) << 4) | ((FG) & 0x0F))
+#define VGACOLOR(BG,FG) (((BG) << 4) | ((FG) & 0x0F))
 /// the light color or blink bit
 #define LIGHT_OR_BLINK 0x8
 #define BLACK   0x0
@@ -37,6 +37,13 @@
 #define MAGENTA 0x5
 #define BROWN   0x6
 #define GRAY    0x7
+#define DARKGRAY (BLACK | LIGHT_OR_BLINK)
+#define LIGHTBLUE (BLUE | LIGHT_OR_BLINK)
+#define LIGHTGREEN (GREEN | LIGHT_OR_BLINK)
+#define LIGHTCYAN (CYAN | LIGHT_OR_BLINK)
+#define LIGHTRED (RED | LIGHT_OR_BLINK)
+#define LIGHTMAGENTA (MAGENTA | LIGHT_OR_BLINK)
+#define YELLOW (BROWN | LIGHT_OR_BLINK)
 #define WHITE   (GRAY | LIGHT_OR_BLINK)
 
 // current output position
@@ -46,6 +53,17 @@ extern uint32_t curcol;
 // current text color
 extern uint8_t screen_color;
 
+/**
+ * @brief Saves the current screen color on a stack and sets the given colors.
+ * @return remaining space on the stack or -1 if the stack is already full.
+ */
+int screen_push_color(uint8_t background, uint8_t foreground);
+
+/**
+ * @brief Restores the screen color from the stack.
+ * @return The remaining space on the stack or -1 if the stack is already empty.
+ */
+int screen_pop_color();
 /**
  * @brief writes a null terminated string to the VGA buffer.
  */

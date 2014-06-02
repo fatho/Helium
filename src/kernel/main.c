@@ -8,28 +8,43 @@
  * This is the first time C code is executed while booting.
  */
 
-#include "kernel/acpi.h"
-#include "kernel/debug.h"
+#include "kernel/panic.h"
+
 #include "kernel/info.h"
-#include "kernel/page.h"
-#include "kernel/pheap.h"
-#include "kernel/screen.h"
-#include "kernel/string.h"
-#include "kernel/util.h"
+
+#include "kernel/interrupts/idt.h"
+
+#include "kernel/klibc/fmtstr.h"
+#include "kernel/klibc/string.h"
+#include "kernel/klibc/kstdio.h"
+
+void print_welcome() {
+    screen_push_color(BLACK, YELLOW);
+
+    kprintf("                      +-----------------------------------+\n");
+    kprintf("                      |        Helium Kernel v0.01        |\n");
+    kprintf("                      | Copyright 2014 (c) Fabian Thorand |\n");
+    kprintf("                      +-----------------------------------+\n");
+    kprintf("\n\n");
+
+    screen_pop_color();
+}
 
 /**
  * @brief 64 bit C entry point for bootstrap processor.
  */
 void main_bsp() {
+    print_welcome();
+
+    kprintf(" * setting up IDT\n");
+    // setup IDT
+    idt_init();
+
+    kprintf(" * parsing system information\n");
+    // parse system information
     info_init();
     info_debug_output();
-    pheap_init(info_table.free_paddr);
 
-    kprintf("TEST: %llx\n", paging_get_physical_addr(0x10000));
-    MAGIC_BREAK;
-
-    acpi_init();
-    acpi_debug_output();
 }
 
 /**

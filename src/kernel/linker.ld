@@ -10,8 +10,8 @@ SECTIONS
     .boot16 ALIGN(4K) :
     {   
         *(.multiboot)
-        *(.text16)
-        *(.rodata16)
+        *(.text16.boot)
+        *(.rodata16.boot)
     }
 
     . = 1M;
@@ -19,15 +19,17 @@ SECTIONS
     /* Bootcode at 1 MiB */
     .boot ALIGN(4K) :
     {
-        *(.boot)
+        *(.text.boot)
+        *(.data.boot)
+        . = ALIGN(4K);
+        /* space for IDT and GDT */
+        idt_data     = .; . += 4K;
+        gdt_data     = .; . += 4K;
         /* space for initial page tables */
         page_id_pml4t = .; . += 4K;
         page_id_pdpt  = .; . += 4K;
         page_id_pdt   = .; . += 4K;
-        page_id_pt    = .; . += 4K * 16;
-        /* space for IDT and GDT */
-        idt_data     = .; . += 4K;
-        gdt_data     = .; . += 4K;
+        page_id_pt    = .; . += 4K;
     }
     
     . += VIRT_BASE;
@@ -38,8 +40,6 @@ SECTIONS
         *(.text)
         *(.rodata)
         *(.rodata*)
-        main_bsp_base = main_bsp - VIRT_BASE;
-        main_ap_base = main_ap - VIRT_BASE;
         __TEXT_END = .;
     }
     
@@ -57,12 +57,14 @@ SECTIONS
         __BSS_START = .;
         *(.bss)
         *(COMMON)
+        . = ALIGN(4K);
+        stack_limit = .; . += 8K;
+        stack_bottom = .;
         __BSS_END = .;
     }
     
     /* mark the first free page after the loader */
     . = ALIGN(4K);
-    
     
     loader_end = . - VIRT_BASE;
 }

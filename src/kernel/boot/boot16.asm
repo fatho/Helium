@@ -1,7 +1,7 @@
 %include "macros/macros.inc"
 %define TARGET 0x1000
 
-section .text16
+section .text16.boot
 bits 16
 
 ;;; @brief 16 bit entry point for application processors. 
@@ -42,7 +42,7 @@ extern boot32_ap
 boot32_ap_trampoline:
     jmp boot32_ap
 
-section .rodata16
+section .rodata16.boot
  
 boot16_gdt_data:
     .null:

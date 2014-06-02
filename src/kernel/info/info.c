@@ -8,25 +8,20 @@
  */
 
 #include "kernel/info.h"
+#include "kernel/helium.h"
 #include "kernel/debug.h"
-#include "kernel/multiboot.h"
-#include "kernel/page.h"
-#include "kernel/screen.h"
-#include "kernel/string.h"
-#include "kernel/util.h"
+#include "kernel/info/multiboot.h"
+#include "kernel/klibc/kstdio.h"
+#include "kernel/klibc/string.h"
+#include "kernel/panic.h"
 
 #include <stddef.h>
 #include <stdint.h>
 
 /**
- * @brief pointer to multiboot info structure. set by #boot32_bsp in boot32.s
+ * @brief pointer to multiboot info structure. set by #boot64_bsp in boot32.s
  */
-static multiboot_info_t* multiboot_info;
-
-/// pre-allocated IDT table
-idt64_t idt_data[HE_IDT_MAX_ENTRIES];
-/// pre-allocated GDT for long mode
-uint64_t gdt_data[HE_GDT_MAX_ENTRIES];
+multiboot_info_t* multiboot_info;
 
 /// structure containing all information and pointers to other tables
 he_info_t info_table;
@@ -95,9 +90,11 @@ void info_parse_mmap(uintptr_t mmap_start, uint32_t mmap_size) {
 
     multiboot_mmap_t* entry = (multiboot_mmap_t*) mmap_start;
     while ((uintptr_t) entry < mmap_start + mmap_size) {
-        // align memory map to page boundaries
-        uint64_t aligned_base = PAGE_FLOOR(entry->base);
+        // align memory map to 4K page boundaries
+        uint64_t aligned_base = entry->base & ~0xFFF;
         uint64_t aligned_length = entry->length + (entry->base - aligned_base);
+        aligned_length += 0xFFF;
+        aligned_length &= ~0xFFF;
 
         info_mmap[eidx].base = aligned_base;
         info_mmap[eidx].length = aligned_length;
@@ -144,12 +141,11 @@ char* info_string_alloc(size_t length) {
  * @brief Writes the contents of the info structures to the screen.
  */
 void info_debug_output() {
-    screen_color = SCREENCOLOR(BLACK, BROWN | LIGHT_OR_BLINK);
+    screen_push_color(BLACK, YELLOW);
+
     kputs("info structure\n");
     kputs("==============\n");
-    kprintf("IDT        @ %llx\n", info_table.idt_paddr);
-    kprintf("GDT        @ %llx\n", info_table.gdt_paddr);
-    kprintf("MOD_TABLE  @ %llx\n", info_table.module_table_paddr);
+    kprintf("MOD_TABLE  @ %llx\n", info_table.module_table);
     kprintf("#MODULES   = %x\n", info_table.module_count);
 
     for (unsigned int i = 0; i < info_table.module_count; i++) {
@@ -157,7 +153,7 @@ void info_debug_output() {
         kprintf("    addr_start: %llx\n", info_modules[i].paddr);
         kprintf("    length    : %x\n", info_modules[i].length);
     }
-    kprintf("info_mmap @ %llx\n", info_table.mmap_table_paddr);
+    kprintf("info_mmap @ %llx\n", info_table.mmap_table);
     kprintf("#MMAPS     = %x\n", info_table.mmap_count);
     uint64_t total_avail_mem = 0;
     for (unsigned int i = 0; i < info_table.mmap_count; i++) {
@@ -168,7 +164,8 @@ void info_debug_output() {
             total_avail_mem += info_mmap[i].length;
     }
     kprintf("TOTAL MEM  = %llx\n", total_avail_mem);
-    screen_color = SCREENCOLOR(BLACK, WHITE);
+
+    screen_pop_color();
 }
 
 /**
@@ -181,10 +178,8 @@ void info_debug_output() {
  */
 void info_init() {
     // populate info table
-    info_table.idt_paddr = (uintptr_t) idt_data;
-    info_table.gdt_paddr = (uintptr_t) gdt_data;
-    info_table.module_table_paddr = (uintptr_t) info_modules;
-    info_table.mmap_table_paddr = (uintptr_t) info_mmap;
+    info_table.module_table = info_modules;
+    info_table.mmap_table = info_mmap;
 
     info_parse_mmap(multiboot_info->mmap, multiboot_info->mmap_len);
 

@@ -5,35 +5,34 @@
    jmp boot32_panic
 %endmacro
 ;;; Code
-section .boot
+section .text.boot
 bits 32
 
 ;; export 32 bits entry points
 global boot32_bsp
 global boot32_ap
+global boot32_gdtr2
 
 ;; import 64 bit entry points
 extern boot64_bsp
 extern boot64_ap
 
 ;; symbols from linker.ld
-extern info_start
-extern info_end
 extern page_id_pml4t
 extern page_id_pdpt
 extern page_id_pdt
 extern page_id_pt
-extern stack_bottom
-extern stack_top
 extern gdt_data
+extern stack_bottom
 
 ;;; Function: 
 ;;;   Initializes the BSP (bootstrap processor), switches to long mode and loads the kernel.
 ;;;   This function is invoked by the bootloader.
 boot32_bsp:
     cli                         ; clear interrupts until we have IDT
-    mov   dword [multiboot_info], ebx ; save multiboot pointer
-    mov   esp, boot_stack_end   ; setup stack
+    mov   esp, stack_bottom - KERNEL_VMA   ; setup stack (lower half)
+    mov   ebp, esp              ; setup stack frame
+    push ebx                    ; save multiboot pointer
 
     ;; check if cpuid-instruction is supported
     call  has_cpuid
@@ -56,6 +55,8 @@ boot32_bsp:
     call boot32_identity_map
     call boot32_prepare
     
+    magicbreak
+    pop ebx
     ;; Setup data segment selectors
     mov ax, boot32_gdt_data.kernel_data
     mov ds, ax
@@ -76,6 +77,7 @@ boot32_bsp:
 .no_longmode:
     panic msg_nolongmode
 
+.multiboot_save: dw 0
 
 ;;; Function:
 ;;;     32 bit entry point for application processors. 
@@ -142,7 +144,7 @@ boot32_identity_map:
     ;; initialize identity mapping in first PT
     mov   edi, page_id_pt
     mov   ebx, 0x00000003        ; ebx <- physical page 0 and RW and PRESENT flags
-    mov   ecx, 16 * 512 - 1      ; ecx <- 16 page tables with 512 entries each minus one for scratch space
+    mov   ecx, 512               ; ecx <- 512 entries
 
 .set_pt_entry:
     mov   DWORD [edi], ebx       ; set PT entry at EDI
@@ -159,8 +161,6 @@ boot32_identity_map:
 ;;;     * enables long mode
 ;;;     * enables paging
 boot32_prepare:
-    magicbreak;
-
     ;; enable PAE
     mov   eax, cr4
     or    eax, 1 << 5           ; Set the PAE-bit, which is the 6th bit (bit 5).
@@ -176,15 +176,15 @@ boot32_prepare:
     mov   eax, page_id_pml4t
     mov   cr3, eax
     
-    ;; load 64 Bit GDT
-    mov eax, boot32_gdt_pointer
-    lgdt [eax]
-    
     ;; enable paging
     mov   eax, cr0
     or    eax, 1 << 31          ; Set the PG-bit, which is the 32nd bit (bit 31).
     mov   cr0, eax
     
+    ;; load 64 Bit lower half GDT
+    mov eax, boot32_gdtr1
+    lgdt [eax]
+
     ret
 
 ;;; Description:
@@ -232,11 +232,13 @@ boot32_panic:
     
     halt  
 
+section .data.boot
+
 msg_notimplemented: db "*** NOT IMPLEMENTED ***",0
 msg_nocpuid:        db "*** CPUID not supported ***",0
 msg_nolongmode:     db "*** 64 Bit (LONG MODE) not supported ***",0
 
-
+align 8
 boot32_gdt_data:
     .null_entry:    
         dq 0x0 
@@ -270,11 +272,10 @@ boot32_gdt_data:
         db 0x00         ; base (24..31)
     .end:
     
-boot32_gdt_pointer:
+align 8
+boot32_gdtr1:
     dw boot32_gdt_data.end - boot32_gdt_data - 1 ; limit
     dq gdt_data         ; base
-
-boot_stack: times 0x2000 db 0
-boot_stack_end:
-
-multiboot_info: dd 0x0
+boot32_gdtr2:
+    dw boot32_gdt_data.end - boot32_gdt_data - 1 ; limit
+    dq gdt_data + 0xFFFFFFFF80000000 ; base in higher half

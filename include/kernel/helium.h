@@ -1,8 +1,9 @@
 /*
- * info.h
+ * @file
+ * @date May 07, 2014
+ * @author Fabian Thorand
  *
- *  Created on: 07.05.2014
- *      Author: fabian
+ * @brief General definitions that are part of the kernels public interface.
  */
 
 #ifndef HELIUM_H_
@@ -19,6 +20,9 @@
 #define HE_GDT_MAX_ENTRIES 512
 /// size of string table in bytes
 #define HE_STRING_TABLE_SIZE HE_PAGE_SIZE
+
+/// virtual base address of kernel space (highest 2 GB)
+#define KERNEL_VMA 0xFFFFFFFF80000000L
 
 /********************************************************************
  * SYSTEM INFORMATION STRUCTURES
@@ -54,17 +58,13 @@ typedef struct {
  * Contains all information the loader is passing to the kernel.
  */
 typedef struct {
-    uintptr_t idt_paddr;            ///< physical address of IDT
-    uintptr_t gdt_paddr;            ///< physical address of GDT
-    uintptr_t free_paddr;           ///< physical address of first free page
-    uintptr_t module_table_paddr;   ///< physical address of module table (see #he_module_t)
-    uintptr_t mmap_table_paddr;     ///< physical address of memory-map-table (see #he_mmap_t)
-    uintptr_t string_table_paddr;   ///< physical address of string table
-
+    uintptr_t    free_paddr;        ///< physical address of first free page
+    he_module_t* module_table;      ///< linear address of module table (see #he_module_t)
+    he_mmap_t*   mmap_table;        ///< linear address of memory-map-table (see #he_mmap_t)
+    char*        string_table;      ///< linear address of string table
     uint32_t  module_count;         ///< number of modules in module table
     uint32_t  mmap_count;           ///< number of entries in memory-map-table
     uint32_t  string_table_size;    ///< size of string table in bytes
-    uint32_t  kernel_module;        ///< index of the kernel module in module table (see #module_table_paddr)
 }__attribute__((packed)) he_info_t;
 
 

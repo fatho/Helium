@@ -5,17 +5,14 @@
 
 \brief Helium is a loader for kernels based on the AMD64 architecture.
 
-\section memlayout Memory Layout
+\section projectstruct TODO
 
-- 0x0000 0000 - 0x0000 1000 ...
-- 0x0000 1000 - 0x0000 2000 .text16 (16 bit code and data for booting APs, reclaimable)
-- 0x0000 2000 - 0x0010 0000 ...
-- 0x0010 0000 - 0x0010 2000 .text (32 and 64 bit loader code, reclaimable)
-- 0x0010 2000 - 0x0010 4000 bootstrap processor stack
-- 0x0010 2000 - 0x0010 3000 .data (reclaimable)
-- 0x0010 3000 - 0x0010 c000 .bss (contains loader stack, reclaimable)
+1. Read Multiboot Info
+2. Setup Page Frame Allocator
+3. Setup Virtual Memory Allocator
+7. CPU features like I/O Ports, MSRs, etc. 
+4. Parse ACPI and SMP Tables
+5. Enable I/O APICs and Local APIC of BSP
+6. Boot Application Processors
 
-- 0x0010 c000 - 0x0010 d000 initial IDT
-- 0x0010 d000 - 0x0010 e000 initial IDT
-- 0x01FF F000 - 0x0200 0000
 */

@@ -7,9 +7,9 @@
  * @brief This module contains a basic screen output system.
  */
 
-#include "kernel/screen.h"
-#include "kernel/string.h"
-#include "kernel/util.h"
+#include "kernel/klibc/kstdio.h"
+#include "kernel/klibc/fmtstr.h"
+#include "kernel/klibc/string.h"
 #include <stdarg.h>
 #include <stdint.h>
 
@@ -19,7 +19,40 @@ uint32_t curline = 0;
 uint32_t curcol = 0;
 
 /// current text color
-uint8_t screen_color = SCREENCOLOR(BLACK, WHITE);
+uint8_t screen_color = VGACOLOR(BLACK, WHITE);
+
+#define COLOR_STACK_SIZE 16
+static uint8_t color_stack[COLOR_STACK_SIZE];
+static int color_stack_index = COLOR_STACK_SIZE;
+
+/**
+ * @brief Saves the current screen color on a stack and sets the given colors.
+ * @return remaining space on the stack or -1 if the stack is already full.
+ */
+int screen_push_color(uint8_t background, uint8_t foreground) {
+    if(color_stack_index > 0) {
+        color_stack_index -= 1;
+        color_stack[color_stack_index] = screen_color;
+        screen_color = VGACOLOR(background, foreground);
+        return color_stack_index;
+    } else {
+        return -1;
+    }
+}
+
+/**
+ * @brief Restores the screen color from the stack.
+ * @return The remaining space on the stack or -1 if the stack is already empty.
+ */
+int screen_pop_color() {
+    if(color_stack_index < COLOR_STACK_SIZE) {
+        screen_color = color_stack[color_stack_index];
+        color_stack_index += 1;
+        return color_stack_index;
+    } else {
+        return -1;
+    }
+}
 
 /**
  * @brief writes a null terminated string to the VGA buffer.
@@ -74,41 +107,6 @@ void kputhex(uint64_t number) {
 }
 
 /**
- * @brief Converts an unsigned integer value to a decimal string and writes it to the buffer.
- */
-void uitoa(uint64_t value, char* buf, size_t bufsz) {
-    char tmpbuf[24];
-    memset(tmpbuf, 0, sizeof(tmpbuf));
-    int offset = sizeof(tmpbuf) - 1;
-    do {
-        offset -= 1;
-        tmpbuf[offset] = '0' + (value % 10);
-        value = value / 10;
-    } while(value != 0 && offset > 0);
-    size_t tmplen = sizeof(tmpbuf) - offset;
-    if(tmplen > bufsz) {
-        tmplen = bufsz;
-    }
-    memcpy(buf, tmpbuf + offset, tmplen);
-}
-
-/**
- * @brief Converts a signed integer value to a decimal string and writes it to the buffer.
- */
-void itoa(int64_t value, char* buf, size_t bufsz) {
-    int negative = value < 0;
-    if(negative) {
-        value = -value;
-        if(bufsz > 0) {
-            buf[0] = '-';
-            buf++;
-            bufsz--;
-        }
-    }
-    uitoa(value, buf, bufsz);
-}
-
-/**
  * @brief A really simple implementation of printf.
  *
  * The following format specifiers are supported:
@@ -130,67 +128,9 @@ void kprintf(const char* format, ...) {
  * @brief same as \c kvprintf(const char*, ...), but with explicit variable argument list.
  */
 void kvprintf(const char* format, va_list vl) {
-    for (const char* str = format; *str; str++) {
-        if (*str != '%') {
-            kputchar(*str);
-            continue;
-        }
-        int longcnt = 0;
-
-        // parse format flags
-        parse_flag:
-        str++;
-        switch(*str) {
-        case 'l': longcnt += 1; goto parse_flag;
-        }
-
-        // parse data type
-        switch(*str) {
-        case 's': {
-            const char* arg = va_arg(vl, const char*);
-            kputs(arg);
-            break;
-        }
-        case 'c': {
-            char arg = va_arg(vl, int);
-            kputchar(arg);
-            break;
-        }
-        case 'd': {
-            char buf[24];
-            memset(buf, 0, sizeof(buf));
-            int64_t arg;
-            if(longcnt >= 2) {
-                arg = va_arg(vl, int64_t);
-            } else {
-                arg = va_arg(vl, int64_t);
-            }
-            itoa(arg, buf, sizeof(buf));
-            kputs(buf);
-            break;
-        }
-        case 'x':
-        case 'X': {
-            char basechr = (*str == 'x') ? 'a' : 'A';
-            if(longcnt >= 2) {
-                uint64_t arg = va_arg(vl, uint64_t);
-                for (int i = 0; i < 16; i++) {
-                    uint8_t block = (arg >> (4 * (15 - i))) & 0xF;
-                    char chr = (block < 10) ? '0' + block : basechr + (block - 10);
-                    kputchar(chr);
-                }
-            } else {
-                uint32_t arg = va_arg(vl, uint32_t);
-                for (int i = 0; i < 8; i++) {
-                    uint8_t block = (arg >> (4 * (7 - i))) & 0xF;
-                    char chr = (block < 10) ? '0' + block : basechr + (block - 10);
-                    kputchar(chr);
-                }
-            }
-            break;
-        }
-        }
-    }
+    char linebuf[256];
+    vsnprintf(linebuf, sizeof(linebuf), format, vl);
+    kputs(linebuf);
 }
 
 /**

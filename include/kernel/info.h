@@ -1,17 +1,11 @@
 #ifndef INFO_H_
 #define INFO_H_
 
-#include "common/helium.h"
-#include "kernel/idt.h"
-#include "kernel/multiboot.h"
+#include "kernel/helium.h"
+#include "kernel/info/multiboot.h"
 
 #include <stdint.h>
 #include <stddef.h>
-
-/// pre-allocated IDT table
-extern idt64_t idt_data[HE_IDT_MAX_ENTRIES];
-/// pre-allocated GDT for long mode
-extern uint64_t gdt_data[HE_GDT_MAX_ENTRIES];
 
 /// structure containing all information and pointers to other tables
 extern he_info_t info_table;
