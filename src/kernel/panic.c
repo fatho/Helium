@@ -9,6 +9,8 @@
 
 #include "kernel/panic.h"
 #include "kernel/klibc/kstdio.h"
+// use direct screen backend
+#include "kernel/klibc/kstdio_screen.h"
 
 #include <stdint.h>
 #include <stdarg.h>
@@ -36,7 +38,9 @@ uint64_t panic_rflags;
  * @remark This function does not return.
  */
 void _kpanic(const char* message) {
-    clear_screen(VGACOLOR(BLACK, RED));
+    // in case of panic, switch back to direct screen backend
+    kstdio_set_backend(&kstdio_screen_direct);
+    screen_clear(VGACOLOR(BLACK, RED));
     kputs(message);
     PANIC_DUMP_STATE();
     __halt__;
@@ -49,7 +53,9 @@ void _kpanic(const char* message) {
  * @remark This function does not return.
  */
 void _kpanicf(const char* message, ...) {
-    clear_screen(VGACOLOR(BLACK, RED));
+    // in case of panic, switch back to direct screen backend
+    kstdio_set_backend(&kstdio_screen_direct);
+    screen_clear(VGACOLOR(BLACK, RED));
     va_list vl;
     va_start(vl, message);
     kvprintf(message,vl);

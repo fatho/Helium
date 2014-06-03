@@ -6,7 +6,7 @@
  * @brief String formatting functions for kernel mode.
  */
 
-#include "kernel/klibc/fmtstr.h"
+#include "kernel/klibc/kstdio.h"
 #include "kernel/klibc/string.h"
 
 #include <stdarg.h>

@@ -38,4 +38,9 @@
 
 #endif
 
+/**
+ * @brief Writes the contents of the info structures to the screen.
+ */
+void debug_print_info();
+
 #endif /* ASSERT_H_ */

@@ -19,12 +19,15 @@ SECTIONS
     /* Bootcode at 1 MiB */
     .boot ALIGN(4K) :
     {
+        boot_code_start = .;
+        /* boot code may be overwritten after APs are booted */
         *(.text.boot)
         *(.data.boot)
         . = ALIGN(4K);
-        /* space for IDT and GDT */
-        idt_data     = .; . += 4K;
+        boot_code_end = .;
+        /* reserve space for GDT and IDT */
         gdt_data     = .; . += 4K;
+        idt_data     = .; . += 4K;
         /* space for initial page tables */
         page_id_pml4t = .; . += 4K;
         page_id_pdpt  = .; . += 4K;
@@ -66,5 +69,5 @@ SECTIONS
     /* mark the first free page after the loader */
     . = ALIGN(4K);
     
-    loader_end = . - VIRT_BASE;
+    kernel_end = . - VIRT_BASE;
 }

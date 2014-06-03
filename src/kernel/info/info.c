@@ -11,7 +11,6 @@
 #include "kernel/helium.h"
 #include "kernel/debug.h"
 #include "kernel/info/multiboot.h"
-#include "kernel/klibc/kstdio.h"
 #include "kernel/klibc/string.h"
 #include "kernel/panic.h"
 
@@ -138,37 +137,6 @@ char* info_string_alloc(size_t length) {
 }
 
 /**
- * @brief Writes the contents of the info structures to the screen.
- */
-void info_debug_output() {
-    screen_push_color(BLACK, YELLOW);
-
-    kputs("info structure\n");
-    kputs("==============\n");
-    kprintf("MOD_TABLE  @ %llx\n", info_table.module_table);
-    kprintf("#MODULES   = %x\n", info_table.module_count);
-
-    for (unsigned int i = 0; i < info_table.module_count; i++) {
-        kprintf("  [%s]\n", info_strings + info_modules[i].cmdline);
-        kprintf("    addr_start: %llx\n", info_modules[i].paddr);
-        kprintf("    length    : %x\n", info_modules[i].length);
-    }
-    kprintf("info_mmap @ %llx\n", info_table.mmap_table);
-    kprintf("#MMAPS     = %x\n", info_table.mmap_count);
-    uint64_t total_avail_mem = 0;
-    for (unsigned int i = 0; i < info_table.mmap_count; i++) {
-        const char* avail = info_mmap[i].available ? "  A" : "N/A";
-        kprintf("  %llx %llx %s\n", info_mmap[i].base, info_mmap[i].length, avail);
-
-        if (info_mmap[i].available)
-            total_avail_mem += info_mmap[i].length;
-    }
-    kprintf("TOTAL MEM  = %llx\n", total_avail_mem);
-
-    screen_pop_color();
-}
-
-/**
  * @brief Initializes the Helium info tables.
  *
  * Performs the following tasks:
@@ -186,8 +154,8 @@ void info_init() {
     info_parse_modules((multiboot_mod_t*) (uintptr_t) multiboot_info->mods,
             multiboot_info->mods_count);
 
-    extern uint8_t loader_end;
-    uintptr_t free_paddr_max = (uintptr_t) &loader_end;
+    extern uint8_t kernel_end;
+    uintptr_t free_paddr_max = (uintptr_t) &kernel_end;
     for(unsigned int i = 0; i < info_table.module_count; i++) {
         uintptr_t mod_end = info_modules[i].paddr + info_modules[i].length;
         if(mod_end > free_paddr_max) {
@@ -195,5 +163,5 @@ void info_init() {
         }
     }
     // align to next page
-    info_table.free_paddr = ((uintptr_t) &loader_end + 0xFFF) & ~0xFFF;
+    info_table.free_paddr = ((uintptr_t) &kernel_end + 0xFFF) & ~0xFFF;
 }

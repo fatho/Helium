@@ -52,11 +52,6 @@ void info_parse_mmap(uintptr_t mmap_start, uint32_t mmap_size);
 char* info_string_alloc(size_t length);
 
 /**
- * @brief Writes the contents of the info structures to the screen.
- */
-void info_debug_output();
-
-/**
  * @brief Initializes the Helium info tables.
  *
  * Performs the following tasks:

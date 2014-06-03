@@ -5,14 +5,28 @@
 
 \brief Helium is a loader for kernels based on the AMD64 architecture.
 
-\section projectstruct TODO
+\section Done
 
 1. Read Multiboot Info
+    - memory map
+    - module table
+    
+\section projectstruct TODO
+
 2. Setup Page Frame Allocator
+    - watermark for early stage
+    - buddy for contiguous memory allocation (small region)
+    - stack for all other allocations
 3. Setup Virtual Memory Allocator
-7. CPU features like I/O Ports, MSRs, etc. 
-4. Parse ACPI and SMP Tables
-5. Enable I/O APICs and Local APIC of BSP
-6. Boot Application Processors
+    - decide where to map paging structures
+4. CPU features like I/O Ports, MSRs, etc. 
+    - may be needed be earlier steps too
+5. Parse ACPI and SMP Tables
+    - needs virtual memory management (at least for ACPI)
+6. Enable I/O APICs and Local APIC of BSP
+7. Boot Application Processors
+8. Keyboard
+9. User Mode processes
+10. Virtual Consoles
 
 */

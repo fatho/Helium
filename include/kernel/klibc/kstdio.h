@@ -5,65 +5,50 @@
 #include <stdint.h>
 #include <stddef.h>
 
-/// base address of VGA memory
-#define VGAMEM  0xB8000
-/// number of text columns
-#define COLS    80
-/// number of text rows
-#define ROWS    25
-/// size of VGA buffer in bytes
-#define VGASIZE (COLS*ROWS*sizeof(uint16_t))
+/// maximum resulting length of the format string in one call of printf
+#define KPRINTF_LINE_MAX 256
 
 /**
- * Calculates a location inside the VGA buffer from \c x and \c y.
+ * @brief this structure defines a backend for kernel print statements.
+ * This is used for the switch from direct screen output to virtual terminals.
+ */
+typedef struct {
+    /// minimal complete definition that writes one char at a time
+    void (*kputchar)(int);
+    /// function to write a string, if NULL, default implementation is used.
+    void (*kputs)(const char*);
+    /// function to write a string with maximum length, if NULL, default implementation is used.
+    void (*kputsn)(const char*, size_t length);
+} kstdio_backend_t;
+
+/**
+ * @brief Works like #snprintf, but accepts an explicit argument list.
+ */
+int vsnprintf(char* str, size_t strn, const char* format, va_list arglist);
+
+/**
+ * @brief Writes formatted text to the supplied buffer.
+ * @param str the output buffer
+ * @param strn size of the output buffer
+ * @param format the format string which supports the usual format specifiers except for floating point values.
+ * @return
+ *   * if the return value is negative, an error occured
+ *   * if the return value greater than or equal to zero,
+ *     it denotes the number of bytes that would have been written to \c str.
+ *     When this number is greater than \c strn, the string returned in \c str is incomplete.
  *
- * @param x,y the VGA screen coordinate (80 columns, 25 rows)
+ *  @todo implement floating point formatting
+ */
+int snprintf(char* str, size_t strn, const char* format, ...);
+
+/**
+ * @brief Sets the current backend for kstdio.
  *
- * @remark ATTENTION! does not perform bound checks.
+ * @param new_backend The new backend that should be used by output functions.
+ * @return The old backend.
  */
-#define VGAPTR(x,y) ((volatile uint16_t*)VGAMEM + y * COLS + x)
+kstdio_backend_t* kstdio_set_backend(kstdio_backend_t* new_backend);
 
-/**
- * Calculates a VGA color byte from fore- and background color.
- */
-#define VGACOLOR(BG,FG) (((BG) << 4) | ((FG) & 0x0F))
-/// the light color or blink bit
-#define LIGHT_OR_BLINK 0x8
-#define BLACK   0x0
-#define BLUE    0x1
-#define GREEN   0x2
-#define CYAN    0x3
-#define RED     0x4
-#define MAGENTA 0x5
-#define BROWN   0x6
-#define GRAY    0x7
-#define DARKGRAY (BLACK | LIGHT_OR_BLINK)
-#define LIGHTBLUE (BLUE | LIGHT_OR_BLINK)
-#define LIGHTGREEN (GREEN | LIGHT_OR_BLINK)
-#define LIGHTCYAN (CYAN | LIGHT_OR_BLINK)
-#define LIGHTRED (RED | LIGHT_OR_BLINK)
-#define LIGHTMAGENTA (MAGENTA | LIGHT_OR_BLINK)
-#define YELLOW (BROWN | LIGHT_OR_BLINK)
-#define WHITE   (GRAY | LIGHT_OR_BLINK)
-
-// current output position
-extern uint32_t curline;
-extern uint32_t curcol;
-
-// current text color
-extern uint8_t screen_color;
-
-/**
- * @brief Saves the current screen color on a stack and sets the given colors.
- * @return remaining space on the stack or -1 if the stack is already full.
- */
-int screen_push_color(uint8_t background, uint8_t foreground);
-
-/**
- * @brief Restores the screen color from the stack.
- * @return The remaining space on the stack or -1 if the stack is already empty.
- */
-int screen_pop_color();
 /**
  * @brief writes a null terminated string to the VGA buffer.
  */
@@ -82,13 +67,8 @@ void kputsn(const char* msg, size_t size);
 void kputchar(int chr);
 
 /**
- * @brief A really simple implementation of printf.
+ * @brief Kernel level printf. Uses #snprintf internally for formatting.
  *
- * The following format specifiers are supported:
- *   - "%%"   print single percent sign
- *   - "%s"   print string
- *   - "%x"   print 32 bit number as 64 bit hex string
- *   - "%llx" print 64 bit number as 64 bit hex string
  */
 void kprintf(const char*, ...);
 
@@ -97,19 +77,6 @@ void kprintf(const char*, ...);
  */
 void kvprintf(const char* format, va_list vl);
 
-/**
- * @brief writes a number to the VGA memory in 64 bit hexadecimal format.
- */
-void kputhex(uint64_t number);
 
-/**
- * @brief clears the screen with the specified color. sets the default color for subsequent screen calls.
- */
-void clear_screen(uint8_t color);
-
-/**
- * @brief scrolls the VGA buffer one line up
- */
-void scroll_up();
 
 #endif
