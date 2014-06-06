@@ -278,4 +278,4 @@ boot32_gdtr1:
     dq gdt_data         ; base
 boot32_gdtr2:
     dw boot32_gdt_data.end - boot32_gdt_data - 1 ; limit
-    dq gdt_data + 0xFFFFFFFF80000000 ; base in higher half
+    dq gdt_data + KERNEL_VMA ; base in higher half

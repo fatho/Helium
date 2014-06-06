@@ -163,5 +163,5 @@ void info_init() {
         }
     }
     // align to next page
-    info_table.free_paddr = ((uintptr_t) &kernel_end + 0xFFF) & ~0xFFF;
+    info_table.kernel_top_paddr = ((uintptr_t) &kernel_end + 0xFFF) & ~0xFFF;
 }

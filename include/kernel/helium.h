@@ -58,7 +58,7 @@ typedef struct {
  * Contains all information the loader is passing to the kernel.
  */
 typedef struct {
-    uintptr_t    free_paddr;        ///< physical address of first free page
+    uintptr_t    kernel_top_paddr;  ///< physical address of first free page after the kernel image
     he_module_t* module_table;      ///< linear address of module table (see #he_module_t)
     he_mmap_t*   mmap_table;        ///< linear address of memory-map-table (see #he_mmap_t)
     char*        string_table;      ///< linear address of string table
