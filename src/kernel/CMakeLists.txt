@@ -7,7 +7,14 @@ project("kernel")
 set(LDFILE "${PROJECT_SOURCE_DIR}/linker.ld")
 
 # include files
-include_directories(${PROJECT_SOURCE_DIR}/../../include)
+get_filename_component(BASE_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/../../include ABSOLUTE)
+set(KERNEL_INCLUDE_DIR ${BASE_INCLUDE_DIR}/kernel)
+
+message(${BASE_INCLUDE_DIR})
+include_directories(${BASE_INCLUDE_DIR})
+
+configure_file(${KERNEL_INCLUDE_DIR}/config.h.in
+    ${KERNEL_INCLUDE_DIR}/config.h @ONLY)
 
 # compiler flags
 set(C_FLAGS "-std=gnu99 -mcmodel=kernel -ffreestanding -Wall -Wextra")

@@ -3,6 +3,11 @@ project("Helium")
 
 # global defintions
 set(OS_NAME "Helium")
+set(OS_VERSION_MAJOR "0")
+set(OS_VERSION_MINOR "1")
+set(OS_TARGET_TRIPLE "x86_64-helium-elf")
+set(OS_COPYRIGHT "Copyright 2014 (c) Fabian Thorand")
+
 set(KERNEL_NAME "kernel")
 set(KERNEL_EXECUTABLE "${KERNEL_NAME}.sys")
 
@@ -10,7 +15,7 @@ set(KERNEL_EXECUTABLE "${KERNEL_NAME}.sys")
 # default prefix
 set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/dist" CACHE PATH "Helium install prefix")
 
-# build kernel
+# build sub-projects
 add_subdirectory(src/grub)
 add_subdirectory(src/kernel)
 

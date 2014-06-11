@@ -6,6 +6,8 @@
  *
  * @brief This module implements a few important string functions from the C standard.
  */
+#include "kernel/klibc/string.h"
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -42,6 +44,23 @@ void* memmove(void* destination, const void* source, size_t num) {
     } else {
         return destination;
     }
+}
+
+char* strcpy(char* destination, const char* source) {
+    char* olddst = destination;
+    while(*source) {
+        *destination = *source;
+        destination++;
+        source++;
+    }
+    return olddst;
+}
+
+char* strcat(char* destination, const char* source) {
+    char* dst = destination;
+    while(*dst) dst++;
+    strcpy(dst, source);
+    return destination;
 }
 
 int strcmp(const char* str1, const char* str2) {

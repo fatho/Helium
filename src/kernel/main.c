@@ -8,9 +8,10 @@
  * This is the first time C code is executed while booting.
  */
 
-#include "kernel/panic.h"
+#include "kernel/config.h"
 #include "kernel/debug.h"
 #include "kernel/info.h"
+#include "kernel/panic.h"
 
 #include "kernel/interrupts/idt.h"
 
@@ -19,12 +20,12 @@
 
 void print_welcome() {
     kputs("\x1b[33m");
-    kprintf("                      +-----------------------------------+\n");
-    kprintf("                      |        Helium Kernel v0.01        |\n");
-    kprintf("                      | Copyright 2014 (c) Fabian Thorand |\n");
-    kprintf("                      +-----------------------------------+\n");
-    kprintf("\n\n");
+    kprintf("%s %d.%d\n", OS_NAME, OS_VERSION_MAJOR, OS_VERSION_MINOR);
+    kprintf("%s\n", OS_COPYRIGHT);
+    kprintf("Machine Target: %s\n", OS_TARGET_TRIPLE);
+    kprintf("Build Timestamp: %s %s\n", __DATE__, __TIME__);
     kputs("\x1b[0m");
+    kputs("\n\n");
 }
 
 /**
@@ -42,7 +43,6 @@ void main_bsp() {
     info_init();
 
     debug_print_info();
-
 }
 
 /**

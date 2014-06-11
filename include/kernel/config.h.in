@@ -1,0 +1,25 @@
+/**
+ * @file config.h
+ * @date 11.06.2014
+ * @author fabian
+ *
+ * @brief The placeholders in \c config.h.in are subsituted by CMAKE 
+ * and the resulting header file is written to \c config.h.
+ * 
+ * Therefore you should not modify \c config.h itself.
+ */
+
+#ifndef CONFIG_H_
+#define CONFIG_H_
+
+#define OS_NAME "@OS_NAME@"
+#define OS_VERSION_MAJOR @OS_VERSION_MAJOR@
+#define OS_VERSION_MINOR @OS_VERSION_MINOR@
+#define OS_TARGET_TRIPLE "@OS_TARGET_TRIPLE@"
+#define OS_COPYRIGHT "@OS_COPYRIGHT@"
+
+// Definitions for Idris-Runtime
+#define IDRIS_TARGET_OS "@OS_NAME@"
+#define IDRIS_TARGET_TRIPLE "@OS_TARGET_TRIPLE@"
+
+#endif /* CONFIG_H_ */
