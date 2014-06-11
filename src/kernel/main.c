@@ -34,15 +34,22 @@ void print_welcome() {
 void main_bsp() {
     print_welcome();
 
+    char cpuvendor[13];
+    cpu_get_vendor(cpuvendor);
+    cpuvendor[12] = 0;
+    kprintf("Detected CPU: %s\n", cpuvendor);
+
     kprintf(" * setting up IDT\n");
-    // setup IDT
     idt_init();
 
     kprintf(" * parsing system information\n");
-    // parse system information
     info_init();
 
+    kprintf(" * initializing page frame allocator\n");
+    pfa_init();
+
     debug_print_info();
+
 }
 
 /**

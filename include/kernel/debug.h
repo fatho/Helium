@@ -38,6 +38,8 @@
 
 #endif
 
+#define UNUSED(x) ((void)(x))
+
 /**
  * @brief Writes the contents of the info structures to the screen.
  */
