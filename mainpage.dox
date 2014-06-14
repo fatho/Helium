@@ -5,7 +5,35 @@
 
 \brief Helium is a loader for kernels based on the AMD64 architecture.
 
-\section Memory Layout
+\section memlayout Memory Layout
+
+
+        /* space for initial page tables */
+        page_pml4t = .; . += 4K;
+        /* for lower identity mapping /*
+        
+        page_id_pdpt  = .; . += 4K;
+        page_id_pdt   = .; . += 4K;
+        
+        /* Higher half at FFFFFFFF 80000000
+        ==> 48 Bit Canonical address
+            1111 1111 1111 1111 1000 0000 0000 0000 0000 | 0000 0000 0000
+            PT-Index:    000000000 = 0
+            PDT-Index:   000000000 = 0
+            PDPT-Index:  111111110 = 510
+            PML4T-Index: 111111111 = 511
+            
+            */
+        /* for mappings above FFFFFF80 00000000 */
+        page_high_pdpt = .; . += 4K;
+        /* for mapping the physical memory up to 4GB to the range 
+         * FFFFFF80 00000000 - FFFFFF81 00000000
+         */ 
+        page_phys_pdt = .; . += 4 * 4K;
+        /* for kernel mapping  
+         * FFFFFFFF 80000000 - FFFFFFFF C0000000
+         */ 
+        page_kernel_pdt = .; . += 4K;
 
 \section done Done
 

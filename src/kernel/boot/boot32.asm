@@ -161,9 +161,13 @@ boot32_identity_map:
 ;;;     * enables long mode
 ;;;     * enables paging
 boot32_prepare:
-    ;; enable PAE
+    ;; enable the following features in CR4
+    ;;  * PGE (bit 7)
+    ;;  * PAE (bit 5)
+    ;;  * PSE (bit 4)
+    ;; ==> 0b 1011 0000 = 0x B0
     mov   eax, cr4
-    or    eax, 1 << 5           ; Set the PAE-bit, which is the 6th bit (bit 5).
+    or    eax, 0x000000B0
     mov   cr4, eax
 
     ;; set Long Mode bit

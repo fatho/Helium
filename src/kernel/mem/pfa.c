@@ -32,7 +32,7 @@ void pfa_init() {
         }
     }
 
-    kassert(mmap_idx < info_table.mmap_count, "watermark not inside any memory region");
+    kassertf(mmap_idx < info_table.mmap_count, "watermark not inside any memory region");
 }
 
 /**
@@ -44,7 +44,7 @@ void pfa_init() {
  * Returns null if no block of the requested size is available.
  */
 uintptr_t pfa_alloc_block(size_t num, size_t align) {
-    kassertf(watermark, "[pfa_alloc_block %d] never called pfa_init", npf);
+    kassertf(watermark, "[pfa_alloc_block] never called pfa_init");
     // cannot allocate empty block
     if (num == 0) {
         return 0;

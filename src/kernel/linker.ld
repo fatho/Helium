@@ -32,7 +32,7 @@ SECTIONS
         page_id_pml4t = .; . += 4K;
         page_id_pdpt  = .; . += 4K;
         page_id_pdt   = .; . += 4K;
-        page_id_pt    = .; . += 4K;
+        page_id_pt  = .; . += 4K;
     }
     
     . += VIRT_BASE;

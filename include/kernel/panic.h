@@ -14,8 +14,9 @@
 
 extern uint64_t panic_gprs[16];
 extern uint64_t panic_rip, panic_rflags;
-extern char* panic_file;
+extern const char* panic_file;
 extern int panic_line;
+extern const char* panic_func;
 
 /**
  * @brief Emits code that saves all general purpose registers to #panic_gprs,
@@ -41,7 +42,8 @@ extern int panic_line;
     asm volatile ("leaq (%%rip), %%rax; movq %%rax, %0" : "=r" (panic_rip) ); \
     asm volatile ("pushfq; popq %%rax; movq %%rax, %0" : "=r" (panic_rflags)); \
     panic_file = __FILE__; \
-    panic_line = __LINE__; }
+    panic_line = __LINE__; \
+    panic_func = __func__; }
 
 
 /**

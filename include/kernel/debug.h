@@ -13,14 +13,14 @@
 #ifdef ASSERTIONS
 
 /// panics when the condition is not true.
-#define kassert(cond) if(!(cond)) { kpanic("Assertion Failed: " #msg); }
+#define kassert(cond) if(!(cond)) { kpanic("Assertion Failed: " #cond); }
 /// panics when the condition is not true.
-#define kassertf(cond,msg,...) if(!(cond)) { kpanicf(msg,__VA_ARGS__); }
+#define kassertf(cond,...) if(!(cond)) { kpanicf(__VA_ARGS__); }
 
 #else
 
 #define kassert(cond)
-#define kassertf(cond,msg,...)
+#define kassertf(cond,...)
 
 #endif
 

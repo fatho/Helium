@@ -13,11 +13,14 @@
 
 #define UNUSED(x) ((void)(x))
 
+// kernel mode Idris runtime just needs one VM
+static VM kernel_vm;
+
 VM* init_vm(int stack_size, size_t heap_size, 
             int max_threads // not implemented yet
             ) {
 
-    VM* vm = kmalloc(sizeof(VM));
+    VM* vm = &kernel_vm; //kmalloc(sizeof(VM));
     STATS_INIT_STATS(vm->stats)
     STATS_ENTER_INIT(vm->stats)
 
@@ -71,7 +74,7 @@ Stats terminate(VM* vm) {
     // pthread_mutex_destroy(&(vm -> inbox_lock));
     // pthread_mutex_destroy(&(vm -> inbox_block));
     // pthread_cond_destroy(&(vm -> inbox_waiting));
-    kfree(vm);
+    // kfree(vm);
 
     STATS_LEAVE_EXIT(stats)
     return stats;

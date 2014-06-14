@@ -12,6 +12,9 @@
 #include "kernel/debug.h"
 #include "kernel/info.h"
 #include "kernel/panic.h"
+#include "kernel/cpu.h"
+
+#include "kernel/mem/pfa.h"
 
 #include "kernel/interrupts/idt.h"
 
@@ -50,6 +53,7 @@ void main_bsp() {
 
     debug_print_info();
 
+    kpanic("Crash :-)");
 }
 
 /**
