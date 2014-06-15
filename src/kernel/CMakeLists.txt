@@ -3,6 +3,8 @@ include(CMakeForceCompiler)
 
 project("kernel")
 
+add_definitions(-DDEBUG -DASSERTIONS)
+
 # additional files
 set(LDFILE "${PROJECT_SOURCE_DIR}/linker.ld")
 

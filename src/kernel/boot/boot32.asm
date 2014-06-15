@@ -18,10 +18,12 @@ extern boot64_bsp
 extern boot64_ap
 
 ;; symbols from linker.ld
-extern page_id_pml4t
+extern page_pml4t
 extern page_id_pdpt
 extern page_id_pdt
-extern page_id_pt
+extern page_high_pdpt
+extern page_phys_pdt
+extern page_kernel_pdt
 extern gdt_data
 extern stack_bottom
 
@@ -55,7 +57,6 @@ boot32_bsp:
     call boot32_identity_map
     call boot32_prepare
     
-    magicbreak
     pop ebx
     ;; Setup data segment selectors
     mov ax, boot32_gdt_data.kernel_data
@@ -64,7 +65,7 @@ boot32_bsp:
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    
+
     ;; far jump to 64 bit code
     jmp boot32_gdt_data.kernel_code:boot64_bsp
     
@@ -120,38 +121,59 @@ boot32_copy_gdt:
 boot32_identity_map:
     ;; initializes first entries of the first three tables
     ;; set flags to 0x3 = 0b11 means: Read/Write and Present
+
+    ;; low mapping
     mov   eax, page_id_pdpt
     or    eax, 0x3
-    mov   DWORD [page_id_pml4t], eax        ; set first entry in PML4T
-    mov   DWORD [page_id_pml4t+0xFF8], eax  ; set last entry in PML4T
-    
+    mov   DWORD [page_pml4t], eax
+
     mov   eax, page_id_pdt
     or    eax, 0x3
-    mov   DWORD [page_id_pdpt], eax         ; set first entry in PDPT
-    mov   DWORD [page_id_pdpt+0xFF0], eax   ; set last entry in PDPT to map the higher half
-    
-    ;; init first 16 entries in PDT
-    mov   eax, page_id_pt       ; first PT
-    or    eax, 0x3              ; RW and PRESENT
-    mov   edi, page_id_pdt      ; start of PDT
-    mov   ecx, 16               ; 16 entries
-.set_pdt_entry:
-    mov   DWORD [edi], eax      ; store entry
-    add   eax, 0x1000           ; advance to next PT           
-    add   edi,8                 ; advance to next entry
-    loop .set_pdt_entry
+    mov   DWORD [page_id_pdpt], eax
 
-    ;; initialize identity mapping in first PT
-    mov   edi, page_id_pt
-    mov   ebx, 0x00000003        ; ebx <- physical page 0 and RW and PRESENT flags
-    mov   ecx, 512               ; ecx <- 512 entries
+    mov   DWORD [page_id_pdt], 0x83
 
-.set_pt_entry:
-    mov   DWORD [edi], ebx       ; set PT entry at EDI
-    add   ebx, 0x1000            ; advance to next physical page address
-    add   edi, 8                 ; advance to next entry
-    loop  .set_pt_entry          ; Set the next entry.
-    
+    ;; high mapping
+    mov   eax, page_high_pdpt
+    or    eax, 0x3
+    mov   DWORD [page_pml4t+0xFF8], eax
+
+    ;; first 4GB to FFFFFF80 00000000
+    mov   eax, page_phys_pdt
+    or    eax, 0x3
+    mov   edi, page_high_pdpt
+    mov   ecx, 4
+    cld
+.set_high_pdpt_phys: ;; set entries for the 4 PDTs in PDPT
+    mov   DWORD [edi], eax
+    add   edi, 0x8
+    add   eax, 0x1000
+    loop .set_high_pdpt_phys
+
+    mov   eax, 0x83
+    mov   edi, page_phys_pdt
+    mov   ecx, 4 * 512
+.set_phys_pdts: ;; set entries of 4 PDTs
+    mov   DWORD [edi], eax
+    add   edi, 0x8
+    add   eax, 0x200000 ;; 2 MiB pages
+    loop .set_phys_pdts
+
+
+    ;; kernel to FFFFFFFF 80000000
+    mov   eax, page_kernel_pdt
+    or    eax, 0x3
+    mov   DWORD [page_high_pdpt+0xFF0], eax
+
+    mov   eax, 0x83
+    mov   edi, page_kernel_pdt
+    mov   ecx, 1 ;; only 2 MiB kernel for now, but who knows...
+.set_kernel_pdts
+    mov   DWORD [edi], eax
+    add   eax, 0x200000 ;; 2 MiB pages
+    add   edi, 0x8
+    loop .set_kernel_pdts
+
     ret
 
 ;;; Function:
@@ -177,7 +199,7 @@ boot32_prepare:
     wrmsr                       ; Write to the model-specific register.
 
     ;; tell CPU the location of the PML4T
-    mov   eax, page_id_pml4t
+    mov   eax, page_pml4t
     mov   cr3, eax
     
     ;; enable paging

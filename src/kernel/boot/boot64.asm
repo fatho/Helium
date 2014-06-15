@@ -17,8 +17,6 @@ extern main_ap
 ;;;
 ;;; @param ebp Pointer to the multiboot structure.
 boot64_bsp:
-    magicbreak
-
     ;; load 64 Bit higher half GDT
     ;; no need to reload segment registers, because GDT contents are unchanged
     mov eax, boot32_gdtr2

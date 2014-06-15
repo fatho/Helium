@@ -10,10 +10,15 @@
 
 #include <stdint.h>
 
+/// interrupt vector for general protection faults
+#define IDT_VEC_GEN_PROT_FAULT 0xD
+/// interrupt vector for page faults
+#define IDT_VEC_PAGE_FAULT 0xE
+
 /// Type code for interrupt gate entry in IDT.
-#define IDT_INT_GATE 0b110
+#define IDT_INT_GATE 0b1110
 /// Type code for trap gate entry in IDT.
-#define IDT_TRAP_GATE 0b111
+#define IDT_TRAP_GATE 0b1111
 /// This bit is set in idt64_t::attr when the entry is present.
 #define IDT_PRESENT_BIT 0x80
 
@@ -43,6 +48,11 @@ typedef struct {
  * @see idt_fill_idt64_t
  */
 void idt_set_entry(int index, uint8_t type, uintptr_t handler, uint16_t cs, uint8_t dpl);
+
+/**
+ * @brief Reloads the IDT after changes have been made.
+ */
+void idt_reload();
 
 /**
  * @brief Initializes the IDT for the first use.

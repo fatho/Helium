@@ -21,6 +21,8 @@ uint64_t panic_gprs[16];
 uint64_t panic_rip;
 /// used by #PANIC_SAVE_STATE to save the CPU flags
 uint64_t panic_rflags;
+/// used by #PANIC_SAVE_STATE to save control registers
+uint64_t panic_crs[5];
 /// used by #PANIC_SAVE_STATE to save the current file name.
 const char* panic_file;
 /// used by #PANIC_SAVE_STATE to save the line in the current file.
@@ -29,7 +31,7 @@ int panic_line;
 const char* panic_func;
 
 #define PANIC_DUMP_STATE() { \
-    kprintf("  >>> in %s (%s:%d)\n", panic_func, panic_file, panic_line); \
+    kprintf("  in %s (%s:%d)\n", panic_func, panic_file, panic_line); \
     kputs("\n"); \
     \
     kprintf("        rax: %16llx r8 : %16llx r14: %16llx\n", panic_gprs[0], panic_gprs[8], panic_gprs[14]); \
@@ -38,6 +40,8 @@ const char* panic_func;
     kprintf("        rdx: %16llx r11: %16llx rsp: %16llx\n", panic_gprs[3], panic_gprs[11], panic_gprs[7]); \
     kprintf("        rsi: %16llx r12: %16llx rip: %16llx\n", panic_gprs[5], panic_gprs[12], panic_rip); \
     kprintf("        rdi: %16llx r13: %16llx rfl: %16llx\n", panic_gprs[6], panic_gprs[13], panic_rflags); \
+    kprintf("        cr0: %16llx cr1: %16llx cr2: %16llx\n", panic_crs[0], panic_crs[1], panic_crs[2]); \
+    kprintf("        cr3: %16llx cr4: %16llx            \n", panic_crs[3], panic_crs[4]); \
     kputs("\n"); }
 
 /**

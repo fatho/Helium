@@ -6,10 +6,13 @@
  * @brief Contains functions to manage the IDT.
  */
 
+#include "kernel/debug.h"
+#include "kernel/helium.h"
 
 #include "kernel/interrupts/idt.h"
-#include "kernel/helium.h"
+
 #include "kernel/klibc/string.h"
+#include "kernel/klibc/kstdio.h"
 
 #include <stddef.h>
 
@@ -25,6 +28,15 @@ static idt64_t* idt_base = NULL;
  * @param dpl Privilege level required for calling this interrupt.
  */
 static void idt_fill_idt64_t(idt64_t* entry, uint8_t type, uintptr_t handler, uint16_t cs, uint8_t dpl) {
+    DEBUGF("[idt_fill_idt64_t]\n");
+    DEBUGF("  entry:   %p\n", entry);
+    DEBUGF("  type:    %x\n", (uint32_t)type);
+    DEBUGF("  handler: %p\n", handler);
+    DEBUGF("  cs:      %x\n", (uint32_t)cs);
+    DEBUGF("  dpl:     %d\n", (uint32_t)dpl);
+
+    MAGIC_BREAK;
+
     entry->offset_low = handler & 0xFFFF;
     entry->offset_middle = (handler >> 16) & 0xFFFF;
     entry->offset_high = (handler >> 32) & 0xFFFFFFFF;
@@ -60,6 +72,13 @@ static void idt_load(idt64_t* base, uint16_t limit) {
 }
 
 /**
+ * @brief Reloads the IDT after changes have been made.
+ */
+void idt_reload() {
+    idt_load(idt_base, HE_IDT_MAX_ENTRIES * 16 - 1);
+}
+
+/**
  * @brief Initializes the IDT for the first use.
  */
 void idt_init() {
@@ -69,5 +88,5 @@ void idt_init() {
     idt_base = (idt64_t*)((uintptr_t)idt_data + KERNEL_VMA);
     memset(idt_base, 0, HE_IDT_MAX_ENTRIES * 16);
 
-    idt_load(idt_base, HE_IDT_MAX_ENTRIES * 16 - 1);
+    idt_reload();
 }
