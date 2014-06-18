@@ -51,7 +51,7 @@ SECTIONS
          * FFFFFF80 00000000 - FFFFFF81 00000000
          */ 
         page_phys_pdt = .; . += 4 * 4K;
-        /* for kernel mapping  
+        /* for kernel code mapping  
          * FFFFFFFF 80000000 - FFFFFFFF C0000000
          */ 
         page_kernel_pdt = .; . += 4K;

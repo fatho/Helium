@@ -65,7 +65,9 @@ uint64_t cpu_msr_read(uint32_t msr) {
 
 /**
  * @brief Writes a 64 bit value to a MSR.
+ *
  * @param msr MSR index
+ * @param value Value to write into the MSR.
  */
 void cpu_msr_write(uint32_t msr, uint64_t value) {
     asm volatile("wrmsr"

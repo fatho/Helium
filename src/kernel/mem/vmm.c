@@ -31,6 +31,7 @@ void vmm_pf_handler() {
  */
 void vmm_init() {
     DEBUGF("[vmm_init]\n");
-    DEBUGF("  handler: %p\n", &vmm_pf_handler_asm);
+    DEBUGF("  install PF handler: %p\n", &vmm_pf_handler_asm);
+    // install page fault handler, needed for virtual memory management
     idt_set_entry(IDT_VEC_PAGE_FAULT, IDT_INT_GATE, (uintptr_t)&vmm_pf_handler_asm, 0x8, 0);
 }
