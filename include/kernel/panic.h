@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#define __halt__ { while(1) { asm volatile ("cli"); asm volatile ("hlt"); } }
+#define __halt__() { while(1) { asm volatile ("cli"); asm volatile ("hlt"); } }
 
 extern uint64_t panic_gprs[16];
 extern uint64_t panic_rip, panic_rflags;

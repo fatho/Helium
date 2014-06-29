@@ -62,7 +62,7 @@ void main_bsp() {
 
     kprintf(" * provoking page fault\n");
 
-    *(uint64_t*)(0xFFFFFFFFF0000000) = 0;
+    //*(uint64_t*)(0xFFFFFFFFF0000000) = 0;
 
     debug_print_info();
 

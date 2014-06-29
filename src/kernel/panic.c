@@ -52,10 +52,10 @@ const char* panic_func;
 void _kpanic(const char* message) {
     // in case of panic, switch back to direct screen backend
     kstdio_set_backend(&kstdio_screen_direct);
-    screen_clear(VGACOLOR(BLACK, RED));
+    screen_clear(VGACOLOR(WHITE, RED));
     kputs(message);
     PANIC_DUMP_STATE();
-    __halt__;
+    __halt__();
 }
 
 /**
@@ -67,11 +67,11 @@ void _kpanic(const char* message) {
 void _kpanicf(const char* message, ...) {
     // in case of panic, switch back to direct screen backend
     kstdio_set_backend(&kstdio_screen_direct);
-    screen_clear(VGACOLOR(BLACK, RED));
+    screen_clear(VGACOLOR(WHITE, RED));
     va_list vl;
     va_start(vl, message);
     kvprintf(message,vl);
     va_end(vl);
     PANIC_DUMP_STATE();
-    __halt__;
+    __halt__();
 }
